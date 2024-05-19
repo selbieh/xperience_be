@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Permission, Group
 from phonenumber_field.modelfields import PhoneNumberField
+from .managers import CustomUserManager
 
 
 class User(AbstractUser):
@@ -29,3 +30,8 @@ class User(AbstractUser):
         related_name="user_permissions",
         related_query_name="user",
     )
+
+    objects = CustomUserManager()
+
+    def __str__(self):
+        return self.phone_number
