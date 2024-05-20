@@ -6,8 +6,8 @@ from .managers import CustomUserManager
 
 class User(AbstractUser):
     username = None
-    phone_number = PhoneNumberField(region='EG', blank=False, null=False, unique=True)
-    USERNAME_FIELD = "phone_number"
+    mobile = PhoneNumberField(region='EG', blank=False, null=False, unique=True)
+    USERNAME_FIELD = "mobile"
     REQUIRED_FIELDS = []
     wallet = models.IntegerField(default=0)
 
@@ -34,4 +34,4 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.phone_number
+        return self.mobile
