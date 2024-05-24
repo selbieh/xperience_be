@@ -63,6 +63,7 @@ class Payment(AbstractBaseModel):
         ('WALLET', 'Wallet'),
         ('CASH_ON_DELIVERY', 'Cash on Delivery'),
         ('CAR_POS', 'Car Point of Sale'),
+        ('POINTS', 'Points')
     ]
 
     reservation = models.OneToOneField(Reservation, on_delete=models.CASCADE, related_name='payment')
