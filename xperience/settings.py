@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drfpasswordless',
-    'users'
+    'base',
+    'users',
 ]
 
 REST_FRAMEWORK = {
