@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drfpasswordless',
     'base',
     'users',
+    'services',
 ]
 
 REST_FRAMEWORK = {
