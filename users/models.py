@@ -35,3 +35,10 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.mobile
+
+
+class locations(models.Model):
+    user = models.ForeignKey(User, related_name="locations", on_delete=models.CASCADE)
+    name = models.CharField(max_length=245)
+    location = models.CharField(max_length=245, null=False)
+
