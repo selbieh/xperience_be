@@ -11,6 +11,7 @@ class User(AbstractUser):
     USERNAME_FIELD = "mobile"
     REQUIRED_FIELDS = []
     wallet = models.IntegerField(default=0)
+    points = models.IntegerField(default=0)
 
     groups = models.ManyToManyField(
         Group,
