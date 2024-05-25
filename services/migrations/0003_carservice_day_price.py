@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='carservice',
             name='day_price',
-            field=models.DecimalField(decimal_places=2, default=django.utils.timezone.now, max_digits=10),
+            field=models.DecimalField(decimal_places=2, default=None, max_digits=10),
             preserve_default=False,
         ),
     ]

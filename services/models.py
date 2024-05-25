@@ -11,19 +11,17 @@ class CarService(AbstractBaseModel):
     type = models.CharField(max_length=50)
     cool = models.BooleanField(default=False)
     image = models.ImageField(upload_to='car_image/', blank=True, null=True)
-    day_price = models.DecimalField(max_digits=10, decimal_places=2)
-    points_day_price = models.IntegerField(blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class DurationOption(AbstractBaseModel):
     car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='duration_options')
     duration = models.DurationField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    points_price = models.IntegerField(blank=True, null=True)
 
 
 class CarImage(models.Model):
-    image = models.ImageField(upload_to='car_images/')
+    image = models.FileField(upload_to='car_images/')
     car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='images')
 
 
@@ -34,10 +32,9 @@ class HotelService(AbstractBaseModel):
     number_of_rooms = models.IntegerField()
     number_of_beds = models.IntegerField()
     day_price = models.DecimalField(max_digits=10, decimal_places=2)
-    points_day_price = models.IntegerField(blank=True, null=True)
 
 
-class HotelServiceFeatures(AbstractBaseModel):
+class HotelServiceFeature(AbstractBaseModel):
     name = models.CharField(max_length=100)
     description = models.TextField()
     hotel_service = models.ForeignKey(HotelService, on_delete=models.CASCADE, related_name='features')

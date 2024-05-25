@@ -39,7 +39,7 @@ class User(AbstractUser):
         return self.mobile
 
 
-class locations(models.Model):
+class Location(models.Model):
     user = models.ForeignKey(User, related_name="locations", on_delete=models.CASCADE)
     name = models.CharField(max_length=245)
     address = models.CharField(max_length=245, null=False, blank=True)
