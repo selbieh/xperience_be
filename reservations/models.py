@@ -2,6 +2,7 @@ from django.db import models
 from base.models import AbstractBaseModel
 from django.conf import settings
 from services.models import ServiceOption, HotelService, CarService
+from django.contrib.gis.db import models as gis_models
 
 class Reservation(AbstractBaseModel):
     STATUS_CHOICES = [
@@ -18,8 +19,12 @@ class CarReservation(AbstractBaseModel):
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='car_reservations')
     car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='car_reservations')
     pickup_time = models.DateTimeField()
-    pickup_location = models.CharField(max_length=255)
-    dropoff_location = models.CharField(max_length=255)
+    pickup_adress = models.CharField(max_length=255)
+    pickup_url = models.URLField(null=False, blank=True)
+    pickup_location = gis_models.PointField(geography=True, null=True, blank=True)
+    dropoff_adress = models.CharField(max_length=255)
+    dropoff_url = models.URLField(null=False, blank=True)
+    dropoff_location = gis_models.PointField(geography=True, null=True, blank=True)
     final_price = models.DecimalField(max_digits=10, decimal_places=2)
     type = models.CharField(max_length=50, choices=[('RIDE', 'Ride'), ('TRAVEL', 'Travel'), ('AIRPORT', 'Airport')])
     terminal = models.CharField(max_length=100, null=True, blank=True)
@@ -39,7 +44,9 @@ class HotelReservation(AbstractBaseModel):
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     final_price = models.DecimalField(max_digits=10, decimal_places=2)
-    location = models.CharField(max_length=255)
+    adress = models.CharField(max_length=255)
+    locaion_url = models.URLField(null=False, blank=True)
+    location = gis_models.PointField(geography=True, null=True, blank=True)
     extras = models.TextField(null=True, blank=True)
 
 
