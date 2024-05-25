@@ -10,6 +10,7 @@ class CarService(AbstractBaseModel):
     color = models.CharField(max_length=50)
     type = models.CharField(max_length=50)
     cool = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='car_image/', blank=True, null=True)
 
 
 class DurationOption(AbstractBaseModel):

@@ -12,9 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import environ
-
-env = environ.Env()
-env.read_env()
+import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,14 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x)h8z&euc4)38b(96ly6ccfxj@12#4pdpguu5+^$6cxaamw9m-'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ['DEBUG']
 
-ALLOWED_HOSTS = []
+SECRET_KEY =  os.environ['SECRET_KEY']
 
+ALLOWED_HOSTS = ['']
 
 # Application definition
 
@@ -63,9 +60,9 @@ PASSWORDLESS_AUTH = {
    'PASSWORDLESS_MOBILE_NOREPLY_NUMBER': '+14793485743'
 }
 
-TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
-TWILIO_PHONE_NUMBER= env("TWILIO_PHONE_NUMBER")
+TWILIO_ACCOUNT_SID = os.environ("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.environ("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER= os.environ("TWILIO_PHONE_NUMBER")
 
 
 MIDDLEWARE = [
@@ -102,11 +99,8 @@ WSGI_APPLICATION = 'xperience.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+DATABASES = {  
+    'default': dj_database_url.config('DATABASE_URL')  
 }
 
 
