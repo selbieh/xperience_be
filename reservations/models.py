@@ -31,7 +31,6 @@ class CarReservationOption(AbstractBaseModel):
     car_reservation = models.ForeignKey(CarReservation, on_delete=models.CASCADE, related_name='options')
     service_option = models.ForeignKey(ServiceOption, on_delete=models.CASCADE, related_name='car_reservation_options')
     quantity = models.IntegerField()
-    final_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class HotelReservation(AbstractBaseModel):
@@ -48,7 +47,6 @@ class HotelReservationOption(AbstractBaseModel):
     hotel_reservation = models.ForeignKey(HotelReservation, on_delete=models.CASCADE, related_name='options')
     service_option = models.ForeignKey(ServiceOption, on_delete=models.CASCADE, related_name='hotel_reservation_options')
     quantity = models.IntegerField()
-    final_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class Payment(AbstractBaseModel):

@@ -11,6 +11,7 @@ class CarService(AbstractBaseModel):
     type = models.CharField(max_length=50)
     cool = models.BooleanField(default=False)
     image = models.ImageField(upload_to='car_image/', blank=True, null=True)
+    day_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class DurationOption(AbstractBaseModel):
@@ -30,6 +31,7 @@ class HotelService(AbstractBaseModel):
     view = models.CharField(max_length=254)
     number_of_rooms = models.IntegerField()
     number_of_beds = models.IntegerField()
+    day_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class HotelServiceFeatures(AbstractBaseModel):
