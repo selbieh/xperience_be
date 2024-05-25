@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Permission, Group
 from phonenumber_field.modelfields import PhoneNumberField
 from .managers import CustomUserManager
+from django.contrib.gis.db import models as gis_models
 
 
 class User(AbstractUser):
@@ -40,5 +41,7 @@ class User(AbstractUser):
 class locations(models.Model):
     user = models.ForeignKey(User, related_name="locations", on_delete=models.CASCADE)
     name = models.CharField(max_length=245)
-    location = models.CharField(max_length=245, null=False)
+    address = models.CharField(max_length=245, null=False, blank=True)
+    location_url = models.URLField(null=False, blank=True)
+    location = gis_models.PointField(geography=True, null=True, blank=True)
 
