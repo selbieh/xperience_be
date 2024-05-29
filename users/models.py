@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Permission, Group
 from phonenumber_field.modelfields import PhoneNumberField
 from .managers import CustomUserManager
-from django.contrib.gis.db import models as gis_models
 
 
 class User(AbstractUser):
@@ -11,7 +10,6 @@ class User(AbstractUser):
     USERNAME_FIELD = "mobile"
     REQUIRED_FIELDS = []
     wallet = models.IntegerField(default=0)
-    points = models.IntegerField(default=0)
 
     groups = models.ManyToManyField(
         Group,
@@ -36,13 +34,11 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.mobile
+        return f'{self.mobile}'
 
 
-class Location(models.Model):
+class locations(models.Model):
     user = models.ForeignKey(User, related_name="locations", on_delete=models.CASCADE)
     name = models.CharField(max_length=245)
-    address = models.CharField(max_length=245, null=False, blank=True)
-    location_url = models.URLField(null=False, blank=True)
-    location = gis_models.PointField(geography=True, null=True, blank=True)
+    location = models.CharField(max_length=245, null=False)
 
