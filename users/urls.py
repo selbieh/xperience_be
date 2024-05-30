@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import UserProfileViewSet
+from .views import UserProfileViewSet, CustomObtainAuthToken
+
 
 urlpatterns = [
-    path('api/profile/', UserProfileViewSet.as_view(), name='user_profile'),
+    path('profile/', UserProfileViewSet.as_view(), name='user_profile'),
 ]
