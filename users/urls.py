@@ -3,5 +3,5 @@ from .views import UserProfileViewSet, CustomObtainAuthToken
 
 
 urlpatterns = [
-    path('profile/', UserProfileViewSet.as_view(), name='user_profile'),
+    path('user/profile/', UserProfileViewSet.as_view(), name='user_profile'),
 ]
