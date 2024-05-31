@@ -7,7 +7,7 @@ from drfpasswordless.serializers import CallbackTokenAuthSerializer
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
-        fields=["id", "first_name", "last_name", "mobile", "wallet"]
+        fields=["id", "first_name", "last_name", "email", "mobile", "wallet"]
 
 class CustomCallbackTokenAuthSerializer(CallbackTokenAuthSerializer):
     def validate(self, attrs):
