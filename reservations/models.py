@@ -30,6 +30,7 @@ class CarReservation(AbstractBaseModel):
     terminal = models.CharField(max_length=100, null=True, blank=True)
     flight_number = models.CharField(max_length=100, null=True, blank=True)
     extras = models.TextField(null=True, blank=True)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 
 class CarReservationOption(AbstractBaseModel):
@@ -48,6 +49,7 @@ class HotelReservation(AbstractBaseModel):
     location_long = models.FloatField(null=True, blank=True)
     location_url = models.URLField(max_length=500, null=True, blank=True)
     extras = models.TextField(null=True, blank=True)
+    final_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 
 class HotelReservationOption(AbstractBaseModel):
