@@ -1,7 +1,7 @@
 from django.db import models
 from base.models import AbstractBaseModel
 from django.conf import settings
-from services.models import ServiceOption, HotelService, CarService
+from services.models import ServiceOption, HotelService, CarService, SubscriptionOption
 
 class Reservation(AbstractBaseModel):
     STATUS_CHOICES = [
@@ -17,6 +17,7 @@ class Reservation(AbstractBaseModel):
 class CarReservation(AbstractBaseModel):
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='car_reservations')
     car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='car_reservations')
+    subscription_option = models.ForeignKey(SubscriptionOption, null=True, on_delete=models.SET_NULL, related_name='car_reservations')
     pickup_time = models.DateTimeField()
     pickup_address = models.CharField(max_length=255)
     pickup_lat = models.FloatField(null=True, blank=True)
