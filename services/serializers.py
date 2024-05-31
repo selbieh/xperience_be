@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import CarService, DurationOption, HotelService, HotelServiceFeatures, CarImage, HotelImage
+from .models import CarService, SubscriptionOption, HotelService, HotelServiceFeatures, CarImage, HotelImage
 
-class DurationOptionSerializer(serializers.ModelSerializer):
+class SubscriptionOptionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DurationOption
+        model = SubscriptionOption
         fields = ['id', 'duration', 'price', 'car_service']
 
 class CarServiceListSerializer(serializers.ModelSerializer):
@@ -17,20 +17,20 @@ class CarImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'car_service']
 
 class CarServiceDetailSerializer(serializers.ModelSerializer):
-    duration_options = serializers.SerializerMethodField()
+    subscription_options = serializers.SerializerMethodField()
     images = CarImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = CarService
-        fields = ['id', 'model', 'make', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool', 'image', 'duration_options', 'images']
+        fields = ['id', 'model', 'make', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool', 'image', 'subscription_options', 'images']
 
-    def get_duration_options(self, obj):
+    def get_subscription_options(self, obj):
         request = self.context.get('request', None)
         if request and request.user.is_staff:
-            active_options = obj.duration_options.all()
+            active_options = obj.subscription_options.all()
         else:
-            active_options = obj.duration_options.filter(active=True)
-        return DurationOptionSerializer(active_options, many=True).data
+            active_options = obj.subscription_options.filter(active=True)
+        return SubscriptionOptionSerializer(active_options, many=True).data
 
 class HotelServiceListSerializer(serializers.ModelSerializer):
     class Meta:

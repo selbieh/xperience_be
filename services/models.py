@@ -13,9 +13,10 @@ class CarService(AbstractBaseModel):
     image = models.ImageField(upload_to='car_image/', blank=True, null=True)
 
 
-class DurationOption(AbstractBaseModel):
-    car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='duration_options')
-    duration = models.DurationField()
+class SubscriptionOption(AbstractBaseModel):
+    type = models.CharField(max_length=50, choices=[('RIDE', 'Ride'), ('TRAVEL', 'Travel'), ('AIRPORT', 'Airport')])
+    car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='subscription_options')
+    duration_hours = models.IntegerField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
 

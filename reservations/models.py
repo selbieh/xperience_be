@@ -18,10 +18,14 @@ class CarReservation(AbstractBaseModel):
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='car_reservations')
     car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='car_reservations')
     pickup_time = models.DateTimeField()
-    pickup_location = models.CharField(max_length=255)
-    dropoff_location = models.CharField(max_length=255)
-    final_price = models.DecimalField(max_digits=10, decimal_places=2)
-    type = models.CharField(max_length=50, choices=[('RIDE', 'Ride'), ('TRAVEL', 'Travel'), ('AIRPORT', 'Airport')])
+    pickup_address = models.CharField(max_length=255)
+    pickup_lat = models.FloatField(null=True, blank=True)
+    pickup_long = models.FloatField(null=True, blank=True)
+    pickup_url = models.URLField(max_length=500, null=True, blank=True)
+    dropoff_address = models.CharField(max_length=255)
+    dropoff_lat = models.FloatField(null=True, blank=True)
+    dropoff_long = models.FloatField(null=True, blank=True)
+    dropoff_url = models.URLField(max_length=500, null=True, blank=True)
     terminal = models.CharField(max_length=100, null=True, blank=True)
     flight_number = models.CharField(max_length=100, null=True, blank=True)
     extras = models.TextField(null=True, blank=True)
@@ -31,7 +35,6 @@ class CarReservationOption(AbstractBaseModel):
     car_reservation = models.ForeignKey(CarReservation, on_delete=models.CASCADE, related_name='options')
     service_option = models.ForeignKey(ServiceOption, on_delete=models.CASCADE, related_name='car_reservation_options')
     quantity = models.IntegerField()
-    final_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class HotelReservation(AbstractBaseModel):
@@ -39,8 +42,10 @@ class HotelReservation(AbstractBaseModel):
     hotel_service = models.ForeignKey(HotelService, on_delete=models.CASCADE, related_name='hotel_reservations')
     check_in_date = models.DateField()
     check_out_date = models.DateField()
-    final_price = models.DecimalField(max_digits=10, decimal_places=2)
-    location = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
+    location_lat = models.FloatField(null=True, blank=True)
+    location_long = models.FloatField(null=True, blank=True)
+    location_url = models.URLField(max_length=500, null=True, blank=True)
     extras = models.TextField(null=True, blank=True)
 
 
@@ -48,7 +53,6 @@ class HotelReservationOption(AbstractBaseModel):
     hotel_reservation = models.ForeignKey(HotelReservation, on_delete=models.CASCADE, related_name='options')
     service_option = models.ForeignKey(ServiceOption, on_delete=models.CASCADE, related_name='hotel_reservation_options')
     quantity = models.IntegerField()
-    final_price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class Payment(AbstractBaseModel):
