@@ -4,12 +4,12 @@ from .models import CarService, SubscriptionOption, HotelService, HotelServiceFe
 class SubscriptionOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubscriptionOption
-        fields = ['id', 'duration', 'price', 'car_service']
+        fields = ['id', 'duration_hours', 'price', 'car_service']
 
 class CarServiceListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarService
-        fields = ['id', 'model', 'make', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool']
+        fields = ['id', 'model', 'make', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool', 'image']
 
 class CarImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,10 +32,20 @@ class CarServiceDetailSerializer(serializers.ModelSerializer):
             active_options = obj.subscription_options.filter(active=True)
         return SubscriptionOptionSerializer(active_options, many=True).data
 
+
 class HotelServiceListSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price']
+        fields = ['id', 'name', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image']
+
+    def get_image(self, obj):
+        image = obj.images.first()
+        if image:
+            return image.image.url
+        return None
+
 
 class HotelServiceFeaturesSerializer(serializers.ModelSerializer):
     class Meta:
