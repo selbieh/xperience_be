@@ -60,4 +60,5 @@ class SubscriptionOptionViewSet(viewsets.ModelViewSet):
     queryset = SubscriptionOption.objects.all()
     serializer_class = SubscriptionOptionSerializer
     permission_classes = [IsAdminUser]
+    filterset_fields = ['type'] 
 
