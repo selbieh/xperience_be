@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CarService, SubscriptionOption, HotelService, HotelServiceFeatures, CarImage, HotelImage
+from .models import CarService, SubscriptionOption, HotelService, HotelServiceFeatures, CarImage, HotelImage, ServiceOption
 
 class SubscriptionOptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -64,3 +64,9 @@ class HotelServiceDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = HotelService
         fields = ['id', 'name', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images']
+
+
+class ServiceOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ServiceOption
+        fields = '__all__'

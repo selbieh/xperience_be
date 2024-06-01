@@ -47,9 +47,10 @@ class HotelImage(models.Model):
 
 class ServiceOption(AbstractBaseModel):
     SERVICE_TYPE_CHOICES = [('Car', 'Car'), ('HOTEL', 'Hotel')]
+    TYPE_CHOICES = [('Extras', 'Extras'), ("Scent Service", "Scent Service"), ("Beverages", "Beverages"), ("Snacks", "Snacks")]
     
     service_type = models.CharField(max_length=50, choices=SERVICE_TYPE_CHOICES)
-    type = models.CharField(max_length=100)  # Additional type categorization
+    type = models.CharField(max_length=100, choices=TYPE_CHOICES)
     sub_type = models.CharField(max_length=100)  # Additional sub-type categorization
     name = models.CharField(max_length=100)
     max_free = models.IntegerField(default=0)

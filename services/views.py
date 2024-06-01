@@ -1,9 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from .models import CarService, HotelService, HotelImage, CarImage, SubscriptionOption
+from .models import CarService, HotelService, HotelImage, CarImage, SubscriptionOption, ServiceOption
 from .serializers import (
     CarServiceListSerializer, CarServiceDetailSerializer, 
-    HotelServiceListSerializer, HotelServiceDetailSerializer, HotelImageSerializer, CarImageSerializer, SubscriptionOptionSerializer
+    HotelServiceListSerializer, HotelServiceDetailSerializer, HotelImageSerializer, CarImageSerializer, SubscriptionOptionSerializer,
+    ServiceOptionSerializer
 )
 
 class CarServiceViewSet(viewsets.ModelViewSet):
@@ -60,5 +61,18 @@ class SubscriptionOptionViewSet(viewsets.ModelViewSet):
     queryset = SubscriptionOption.objects.all()
     serializer_class = SubscriptionOptionSerializer
     permission_classes = [IsAdminUser]
-    filterset_fields = ['type'] 
+    filterset_fields = ['type']
+
+
+class ServiceOptionViewSet(viewsets.ModelViewSet):
+    queryset = ServiceOption.objects.all()
+    serializer_class = ServiceOptionSerializer
+    filterset_fields = ['service_type', 'type']
+
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
