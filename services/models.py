@@ -21,7 +21,7 @@ class SubscriptionOption(AbstractBaseModel):
 
 
 class CarImage(models.Model):
-    image = models.ImageField(upload_to='car_images/')
+    image = models.FileField(upload_to='car_images/')
     car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='images')
 
 

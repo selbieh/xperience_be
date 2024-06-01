@@ -1,9 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from .models import CarService, HotelService
+from .models import CarService, HotelService, HotelImage, CarImage
 from .serializers import (
     CarServiceListSerializer, CarServiceDetailSerializer, 
-    HotelServiceListSerializer, HotelServiceDetailSerializer
+    HotelServiceListSerializer, HotelServiceDetailSerializer, HotelImageSerializer, CarImageSerializer
 )
 
 class CarServiceViewSet(viewsets.ModelViewSet):
@@ -42,3 +42,15 @@ class HotelServiceViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
+    
+
+class HotelImageViewSet(viewsets.ModelViewSet):
+    queryset = HotelImage.objects.all()
+    serializer_class = HotelImageSerializer
+    permission_classes = [IsAdminUser]
+
+
+class CarImageViewSet(viewsets.ModelViewSet):
+    queryset = CarImage.objects.all()
+    serializer_class = CarImageSerializer
+    permission_classes = [IsAdminUser]
