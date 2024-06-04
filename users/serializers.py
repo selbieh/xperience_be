@@ -7,5 +7,5 @@ from drfpasswordless.serializers import CallbackTokenAuthSerializer
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
-        fields=["id", "name", "email", "mobile", "wallet"]
+        fields=["id", "name", "email", "mobile", "wallet", "is_staff"]
 
