@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from drfpasswordless.serializers import CallbackTokenAuthSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 class UserProfileViewSet(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
@@ -27,8 +28,10 @@ class CustomObtainAuthToken(APIView):
         if serializer.is_valid(raise_exception=True):
             user = serializer.validated_data['user']
             refresh = RefreshToken.for_user(user)
+            user_data = UserProfileSerializer(user).data
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                'user': user_data
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -10,6 +10,7 @@ class User(AbstractUser):
     USERNAME_FIELD = "mobile"
     REQUIRED_FIELDS = []
     wallet = models.IntegerField(default=0)
+    name = models.CharField(max_length=245, blank=True, null=True)
 
     groups = models.ManyToManyField(
         Group,
