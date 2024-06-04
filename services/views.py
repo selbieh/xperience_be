@@ -49,12 +49,14 @@ class HotelImageViewSet(viewsets.ModelViewSet):
     queryset = HotelImage.objects.all()
     serializer_class = HotelImageSerializer
     permission_classes = [IsAdminUser]
+    filterset_fields = ['hotel_service']
 
 
 class CarImageViewSet(viewsets.ModelViewSet):
     queryset = CarImage.objects.all()
     serializer_class = CarImageSerializer
     permission_classes = [IsAdminUser]
+    filterset_fields = ['car_service']
 
 
 class SubscriptionOptionViewSet(viewsets.ModelViewSet):
