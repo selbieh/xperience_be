@@ -63,7 +63,7 @@ class SubscriptionOptionViewSet(viewsets.ModelViewSet):
     queryset = SubscriptionOption.objects.all()
     serializer_class = SubscriptionOptionSerializer
     permission_classes = [IsAdminUser]
-    filterset_fields = ['type']
+    filterset_fields = ['type', 'car_service']
 
 
 class ServiceOptionViewSet(viewsets.ModelViewSet):
