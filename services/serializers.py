@@ -4,7 +4,7 @@ from .models import CarService, SubscriptionOption, HotelService, HotelServiceFe
 class SubscriptionOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubscriptionOption
-        fields = ['id', 'duration_hours', 'price', 'car_service']
+        fields = ['id', 'duration_hours', 'price', 'car_service', "type"]
 
 class CarServiceListSerializer(serializers.ModelSerializer):
     class Meta:
