@@ -12,6 +12,7 @@ class Reservation(AbstractBaseModel):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='CONFIRMED')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reservations')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_reservations')
 
 
 class CarReservation(AbstractBaseModel):

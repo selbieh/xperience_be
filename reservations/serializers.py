@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import transaction
+from users.models import User
 from .models import (
     Reservation, CarReservation, HotelReservation,
     CarReservationOption, HotelReservationOption, ServiceOption, SubscriptionOption
@@ -40,11 +41,12 @@ class HotelReservationSerializer(serializers.ModelSerializer):
 class ReservationSerializer(serializers.ModelSerializer):
     car_reservations = CarReservationSerializer(many=True, required=False)
     hotel_reservations = HotelReservationSerializer(many=True, required=False)
-    user = UserProfileSerializer(read_only=True)
+    created_by = UserProfileSerializer(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
 
     class Meta:
         model = Reservation
-        fields = ['id', 'user', 'car_reservations', 'hotel_reservations']
+        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status']
 
     def validate(self, data):
         car_reservations = data.get('car_reservations', None)
