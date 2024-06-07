@@ -25,6 +25,11 @@ class CarImage(models.Model):
     car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='images')
 
 
+class HotelServiceFeature(AbstractBaseModel):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+
+
 class HotelService(AbstractBaseModel):
     name = models.CharField(max_length=254)
     description = models.TextField()
@@ -36,12 +41,7 @@ class HotelService(AbstractBaseModel):
     location_lat = models.FloatField(null=True, blank=True)
     location_long = models.FloatField(null=True, blank=True)
     location_url = models.URLField(max_length=500, null=True, blank=True)
-
-
-class HotelServiceFeatures(AbstractBaseModel):
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    hotel_service = models.ForeignKey(HotelService, on_delete=models.CASCADE, related_name='features')
+    features = models.ManyToManyField(HotelServiceFeature, related_name='hotel_services')
 
 
 class HotelImage(models.Model):

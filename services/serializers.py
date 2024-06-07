@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CarService, SubscriptionOption, HotelService, HotelServiceFeatures, CarImage, HotelImage, ServiceOption
+from .models import CarService, SubscriptionOption, HotelService, HotelServiceFeature, CarImage, HotelImage, ServiceOption
 
 
 class CarServiceMinimalSerializer(serializers.ModelSerializer):
@@ -56,10 +56,10 @@ class HotelServiceListSerializer(serializers.ModelSerializer):
         return None
 
 
-class HotelServiceFeaturesSerializer(serializers.ModelSerializer):
+class HotelServiceFeatureSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HotelServiceFeatures
-        fields = ['id', 'name', 'description', 'hotel_service']
+        model = HotelServiceFeature
+        fields = ['id', 'name', 'description']
 
 class HotelImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,12 +67,19 @@ class HotelImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'hotel_service']
 
 class HotelServiceDetailSerializer(serializers.ModelSerializer):
-    features = HotelServiceFeaturesSerializer(many=True, read_only=True)
+    features = serializers.PrimaryKeyRelatedField(queryset=HotelServiceFeature.objects.all(), many=True)
     images = HotelImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = HotelService
         fields = ['id', 'name', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images', 'address', 'location_lat', 'location_long', 'location_url']
+
+    def update(self, instance, validated_data):
+        features_data = validated_data.pop('features', None)
+        instance = super().update(instance, validated_data)
+        if features_data is not None:
+            instance.features.set(features_data)
+        return instance
 
 
 class ServiceOptionSerializer(serializers.ModelSerializer):
