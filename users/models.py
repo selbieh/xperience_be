@@ -37,7 +37,11 @@ class User(AbstractUser):
     def __str__(self):
         return f'{self.mobile}'
 
-
+    class Meta:
+        indexes = [
+            models.Index(fields=['mobile']),
+        ]
+        
 class Location(models.Model):
     user = models.ForeignKey(User, related_name="locations", on_delete=models.CASCADE)
     name = models.CharField(max_length=245)

@@ -1,7 +1,10 @@
-from django.urls import path
-from .views import UserProfileViewSet, CustomObtainAuthToken
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import UserProfileViewSet
 
+router = DefaultRouter()
+router.register(r'user/profile', UserProfileViewSet, basename='userprofile')
 
 urlpatterns = [
-    path('user/profile/', UserProfileViewSet.as_view(), name='user_profile'),
+    path('', include(router.urls)),
 ]

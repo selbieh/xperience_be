@@ -6,6 +6,7 @@ from drfpasswordless.serializers import CallbackTokenAuthSerializer
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model=User
-        fields=["id", "name", "email", "mobile", "wallet", "is_staff"]
+        model = User
+        fields = ["id", "name", "email", "mobile", "wallet", "is_staff"]
+        read_only_fields = ["wallet"]
 
