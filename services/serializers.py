@@ -1,10 +1,19 @@
 from rest_framework import serializers
 from .models import CarService, SubscriptionOption, HotelService, HotelServiceFeatures, CarImage, HotelImage, ServiceOption
 
+
+class CarServiceMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarService
+        fields = ['id', 'model', 'make', 'number_of_seats', 'year', 'type']
+
+
 class SubscriptionOptionSerializer(serializers.ModelSerializer):
+    car_service = CarServiceMinimalSerializer()
     class Meta:
         model = SubscriptionOption
         fields = ['id', 'duration_hours', 'price', 'car_service', "type"]
+
 
 class CarServiceListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,7 +72,7 @@ class HotelServiceDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images']
+        fields = ['id', 'name', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images', 'address', 'location_lat', 'location_long', 'location_url']
 
 
 class ServiceOptionSerializer(serializers.ModelSerializer):

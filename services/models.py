@@ -32,6 +32,10 @@ class HotelService(AbstractBaseModel):
     number_of_rooms = models.IntegerField()
     number_of_beds = models.IntegerField()
     day_price = models.DecimalField(max_digits=10, decimal_places=2)
+    address = models.CharField(max_length=255, default="Cairo", null=True, blank=True )
+    location_lat = models.FloatField(null=True, blank=True)
+    location_long = models.FloatField(null=True, blank=True)
+    location_url = models.URLField(max_length=500, null=True, blank=True)
 
 
 class HotelServiceFeatures(AbstractBaseModel):
@@ -51,7 +55,6 @@ class ServiceOption(AbstractBaseModel):
     
     service_type = models.CharField(max_length=50, choices=SERVICE_TYPE_CHOICES)
     type = models.CharField(max_length=100, choices=TYPE_CHOICES)
-    sub_type = models.CharField(max_length=100)  # Additional sub-type categorization
     name = models.CharField(max_length=100)
     max_free = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)

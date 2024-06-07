@@ -4,6 +4,7 @@ from .models import (
     Reservation, CarReservation, HotelReservation,
     CarReservationOption, HotelReservationOption, ServiceOption, SubscriptionOption
 )
+from users.serializers import UserProfileSerializer
 from datetime import timedelta
 
 class CarReservationOptionSerializer(serializers.ModelSerializer):
@@ -17,7 +18,7 @@ class CarReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarReservation
         fields = [
-            'car_service', 'pickup_time', 'pickup_address', 'pickup_lat', 'pickup_long', 'pickup_url',
+            'id', 'car_service', 'pickup_time', 'pickup_address', 'pickup_lat', 'pickup_long', 'pickup_url',
             'dropoff_address', 'dropoff_lat', 'dropoff_long', 'dropoff_url', 'terminal', 'flight_number',
             'extras', 'final_price', 'subscription_option', 'options'
         ]
@@ -33,17 +34,17 @@ class HotelReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = HotelReservation
         fields = [
-            'hotel_service', 'check_in_date', 'check_out_date', 'address', 'location_lat', 'location_long',
-            'location_url', 'extras', 'final_price', 'options'
+            'id', 'hotel_service', 'check_in_date', 'check_out_date', 'extras', 'final_price', 'options'
         ]
 
 class ReservationSerializer(serializers.ModelSerializer):
     car_reservations = CarReservationSerializer(many=True, required=False)
     hotel_reservations = HotelReservationSerializer(many=True, required=False)
+    user = UserProfileSerializer(read_only=True)
 
     class Meta:
         model = Reservation
-        fields = ['car_reservations', 'hotel_reservations']
+        fields = ['id', 'user', 'car_reservations', 'hotel_reservations']
 
     def validate(self, data):
         car_reservations = data.get('car_reservations', None)

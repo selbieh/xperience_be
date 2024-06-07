@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.filters import SearchFilter
 from .models import CarService, HotelService, HotelImage, CarImage, SubscriptionOption, ServiceOption
 from .serializers import (
     CarServiceListSerializer, CarServiceDetailSerializer, 
@@ -8,6 +9,10 @@ from .serializers import (
 )
 
 class CarServiceViewSet(viewsets.ModelViewSet):
+    filter_backends = [SearchFilter]
+    search_fields = ['model', 'make', 'type']
+    filterset_fields = ['model', 'make', 'year', 'color', 'type', 'number_of_seats', 'cool']
+
     def get_queryset(self):
         if self.request.user.is_staff:
             return CarService.objects.all()
@@ -27,6 +32,10 @@ class CarServiceViewSet(viewsets.ModelViewSet):
 
 
 class HotelServiceViewSet(viewsets.ModelViewSet):
+    filter_backends = [SearchFilter]
+    search_fields = ['name', 'address']
+    filterset_fields = ['day_price']
+
     def get_queryset(self):
         if self.request.user.is_staff:
             return HotelService.objects.all()

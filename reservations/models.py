@@ -44,10 +44,6 @@ class HotelReservation(AbstractBaseModel):
     hotel_service = models.ForeignKey(HotelService, on_delete=models.CASCADE, related_name='hotel_reservations')
     check_in_date = models.DateField()
     check_out_date = models.DateField()
-    address = models.CharField(max_length=255)
-    location_lat = models.FloatField(null=True, blank=True)
-    location_long = models.FloatField(null=True, blank=True)
-    location_url = models.URLField(max_length=500, null=True, blank=True)
     extras = models.TextField(null=True, blank=True)
     final_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
