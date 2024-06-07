@@ -11,3 +11,4 @@ media
 .vscode
 venv
 .env
+firebase.json
