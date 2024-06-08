@@ -59,6 +59,8 @@ class HotelService(AbstractBaseModel):
     location_long = models.FloatField(null=True, blank=True)
     location_url = models.URLField(max_length=500, null=True, blank=True)
     features = models.ManyToManyField(HotelServiceFeature, related_name='hotel_services')
+    availability_start = models.DateField(null=True, blank=True)
+    availability_end = models.DateField(null=True, blank=True)
 
 
 class HotelImage(models.Model):

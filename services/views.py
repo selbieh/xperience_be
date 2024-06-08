@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.filters import SearchFilter
+import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import CarService, HotelService, HotelImage, CarImage, SubscriptionOption, ServiceOption, HotelServiceFeature, CarModel, CarMake
 from .serializers import (
@@ -32,10 +33,19 @@ class CarServiceViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
+class HotelServiceFilter(django_filters.FilterSet):
+    availability_start_gte = django_filters.DateFilter(field_name='availability_start', lookup_expr='lte')
+    availability_end_lte = django_filters.DateFilter(field_name='availability_end', lookup_expr='gte')
+
+    class Meta:
+        model = HotelService
+        fields = ['features__id', 'address']
+
+
 class HotelServiceViewSet(viewsets.ModelViewSet):
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['name', 'address']
-    filterset_fields = ['features__id', 'address']
+    filterset_class = HotelServiceFilter
 
     def get_queryset(self):
         if self.request.user.is_staff:
