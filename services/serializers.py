@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CarService, SubscriptionOption, HotelService, HotelServiceFeature, CarImage, HotelImage, ServiceOption
+from .models import CarService, SubscriptionOption, HotelService, HotelServiceFeature, CarImage, HotelImage, ServiceOption, CarMake, CarModel
 
 
 class CarServiceMinimalSerializer(serializers.ModelSerializer):
@@ -85,4 +85,16 @@ class HotelServiceDetailSerializer(serializers.ModelSerializer):
 class ServiceOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceOption
+        fields = '__all__'
+
+
+class CarMakeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarMake
+        fields = '__all__'
+
+class CarModelSerializer(serializers.ModelSerializer):
+    make = serializers.StringRelatedField()  # Shows the make's name instead of the ID
+    class Meta:
+        model = CarModel
         fields = '__all__'

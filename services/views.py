@@ -2,17 +2,17 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import CarService, HotelService, HotelImage, CarImage, SubscriptionOption, ServiceOption, HotelServiceFeature
+from .models import CarService, HotelService, HotelImage, CarImage, SubscriptionOption, ServiceOption, HotelServiceFeature, CarModel, CarMake
 from .serializers import (
     CarServiceListSerializer, CarServiceDetailSerializer, 
     HotelServiceListSerializer, HotelServiceDetailSerializer, HotelImageSerializer, CarImageSerializer, SubscriptionOptionSerializer,
-    ServiceOptionSerializer, HotelServiceFeatureSerializer
+    ServiceOptionSerializer, HotelServiceFeatureSerializer, CarMakeSerializer, CarModelSerializer
 )
 
 class CarServiceViewSet(viewsets.ModelViewSet):
     filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ['model', 'make', 'type']
-    filterset_fields = ['model', 'make', 'year', 'color', 'type', 'number_of_seats', 'cool']
+    search_fields = ['model', 'make', 'type', 'color']
+    filterset_fields = ['model', 'make']
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -72,8 +72,14 @@ class CarImageViewSet(viewsets.ModelViewSet):
 class SubscriptionOptionViewSet(viewsets.ModelViewSet):
     queryset = SubscriptionOption.objects.all()
     serializer_class = SubscriptionOptionSerializer
-    permission_classes = [IsAdminUser]
     filterset_fields = ['type', 'car_service']
+
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
 
 class ServiceOptionViewSet(viewsets.ModelViewSet):
@@ -93,3 +99,26 @@ class HotelServiceFeatureViewSet(viewsets.ModelViewSet):
     queryset = HotelServiceFeature.objects.all()
     serializer_class = HotelServiceFeatureSerializer
     permission_classes = [IsAdminUser]
+
+
+class CarMakeViewSet(viewsets.ModelViewSet):
+    queryset = CarMake.objects.all()
+    serializer_class = CarMakeSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+class CarModelViewSet(viewsets.ModelViewSet):
+    queryset = CarModel.objects.all()
+    serializer_class = CarModelSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]

@@ -1,9 +1,26 @@
 from django.db import models
 from base.models import AbstractBaseModel
 
+
+from django.db import models
+from base.models import AbstractBaseModel
+
+class CarMake(AbstractBaseModel):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class CarModel(AbstractBaseModel):
+    make = models.ForeignKey(CarMake, on_delete=models.CASCADE, related_name='models')
+
+    def __str__(self):
+        return self.make
+
+
 class CarService(AbstractBaseModel):
-    model = models.CharField(max_length=100)
-    make = models.CharField(max_length=100)
+    model = models.ForeignKey(CarModel, on_delete=models.CASCADE, related_name='car_services', null=True)
+    make = models.ForeignKey(CarMake, on_delete=models.CASCADE, related_name='car_services', null=True) 
     description = models.TextField()
     number_of_seats = models.IntegerField()
     year = models.IntegerField()
