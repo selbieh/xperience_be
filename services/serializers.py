@@ -80,6 +80,12 @@ class HotelServiceDetailSerializer(serializers.ModelSerializer):
         if features_data is not None:
             instance.features.set(features_data)
         return instance
+    
+
+class HotelServiceMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HotelService
+        fields = ['id', 'name', 'address']
 
 
 class ServiceOptionSerializer(serializers.ModelSerializer):

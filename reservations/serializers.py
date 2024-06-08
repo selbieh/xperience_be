@@ -7,6 +7,8 @@ from .models import (
 )
 from users.serializers import UserProfileSerializer
 from datetime import timedelta
+from services.serializers import CarServiceMinimalSerializer, HotelServiceMinimalSerializer
+from services.models import CarService, HotelService
 
 class CarReservationOptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,11 +17,20 @@ class CarReservationOptionSerializer(serializers.ModelSerializer):
 
 class CarReservationSerializer(serializers.ModelSerializer):
     options = CarReservationOptionSerializer(many=True)
+    car_service = serializers.SerializerMethodField()
+    car_service_id = serializers.PrimaryKeyRelatedField(
+        queryset=CarService.objects.all(), 
+        write_only=True, 
+        source='car_service'
+    )
+
+    def get_car_service(self, obj):
+        return CarServiceMinimalSerializer(obj.car_service).data
 
     class Meta:
         model = CarReservation
         fields = [
-            'id', 'car_service', 'pickup_time', 'pickup_address', 'pickup_lat', 'pickup_long', 'pickup_url',
+            'id', 'car_service_id', 'car_service', 'pickup_time', 'pickup_address', 'pickup_lat', 'pickup_long', 'pickup_url',
             'dropoff_address', 'dropoff_lat', 'dropoff_long', 'dropoff_url', 'terminal', 'flight_number',
             'extras', 'final_price', 'subscription_option', 'options'
         ]
@@ -31,11 +42,20 @@ class HotelReservationOptionSerializer(serializers.ModelSerializer):
 
 class HotelReservationSerializer(serializers.ModelSerializer):
     options = HotelReservationOptionSerializer(many=True)
+    hotel_service = serializers.SerializerMethodField()
+    hotel_service_id = serializers.PrimaryKeyRelatedField(
+        queryset=HotelService.objects.all(), 
+        write_only=True, 
+        source='hotel_service'
+    )
+
+    def get_hotel_service(self, obj):
+        return HotelServiceMinimalSerializer(obj.hotel_service).data
 
     class Meta:
         model = HotelReservation
         fields = [
-            'id', 'hotel_service', 'check_in_date', 'check_out_date', 'extras', 'final_price', 'options'
+            'id', 'hotel_service_id', 'hotel_service', 'check_in_date', 'check_out_date', 'extras', 'final_price', 'options'
         ]
 
 class ReservationSerializer(serializers.ModelSerializer):
