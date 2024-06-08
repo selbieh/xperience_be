@@ -5,12 +5,13 @@ from services.models import ServiceOption, HotelService, CarService, Subscriptio
 
 class Reservation(AbstractBaseModel):
     STATUS_CHOICES = [
+        ('WAITING_FOR_PAYMENT', 'Waiting for Payment'),
         ('CONFIRMED', 'Confirmed'),
         ('CANCELLED', 'Cancelled'),
         ('COMPLETED', 'Completed'),
     ]
 
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='CONFIRMED')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='WAITING_FOR_PAYMENT')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reservations')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_reservations')
 
@@ -78,15 +79,4 @@ class Payment(AbstractBaseModel):
     payment_date = models.DateTimeField(null=True, blank=True)
 
 
-class Refund(AbstractBaseModel):
-    REFUND_METHOD_CHOICES = [
-        ('CREDIT_CARD', 'Credit Card'),
-        ('WALLET', 'Wallet'),
-    ]
-
-    reservation = models.OneToOneField(Reservation, on_delete=models.CASCADE, related_name='refund')
-    refund_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    refund_date = models.DateTimeField(null=True, blank=True)
-    refund_transaction_id = models.CharField(max_length=100, null=True, blank=True)
-    refund_method = models.CharField(max_length=20, choices=REFUND_METHOD_CHOICES)
 
