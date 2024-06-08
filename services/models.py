@@ -12,10 +12,10 @@ class CarMake(AbstractBaseModel):
         return self.name
 
 class CarModel(AbstractBaseModel):
-    make = models.ForeignKey(CarMake, on_delete=models.CASCADE, related_name='models')
+    name = models.CharField(max_length=100, unique=True, default="model")
 
     def __str__(self):
-        return self.make
+        return self.name
 
 
 class CarService(AbstractBaseModel):
