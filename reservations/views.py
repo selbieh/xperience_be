@@ -24,8 +24,8 @@ class ReservationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Reservation.objects.all()
-        return Reservation.objects.filter(user=user)
+            return Reservation.objects.all().order_by("-created_at")
+        return Reservation.objects.filter(user=user).order_by("-created_at")
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
