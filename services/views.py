@@ -17,8 +17,8 @@ class CarServiceViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return CarService.objects.all()
-        return CarService.objects.filter(active=True)
+            return CarService.objects.select_related('make', 'model').all()
+        return CarService.objects.select_related('make', 'model').filter(active=True)
 
     def get_serializer_class(self):
         if self.action in ['list']:

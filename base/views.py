@@ -7,6 +7,7 @@ class PolicyViewSet(ModelViewSet):
     queryset = Policy.objects.all()
     serializer_class = PolicySerializer
     filterset_fields = ['key']
+    pagination_class = None
 
     def get_permissions(self):
         if self.request.method in ['GET']:

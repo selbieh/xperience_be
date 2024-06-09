@@ -3,6 +3,15 @@ from .models import CarService, SubscriptionOption, HotelService, HotelServiceFe
 
 
 class CarServiceMinimalSerializer(serializers.ModelSerializer):
+    make = serializers.SerializerMethodField()
+    model = serializers.SerializerMethodField()
+    
+    def get_make(self, obj):
+        return obj.make.name if obj.make else None
+    
+    def get_model(self, obj):
+        return obj.model.name if obj.model else None
+    
     class Meta:
         model = CarService
         fields = ['id', 'model', 'make', 'number_of_seats', 'year', 'type']
@@ -16,9 +25,17 @@ class SubscriptionOptionSerializer(serializers.ModelSerializer):
 
 
 class CarServiceListSerializer(serializers.ModelSerializer):
+    make = serializers.SerializerMethodField()
+    model = serializers.SerializerMethodField()
     class Meta:
         model = CarService
         fields = ['id', 'model', 'make', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool', 'image']
+
+    def get_make(self, obj):
+        return obj.make.name if obj.make else None
+    
+    def get_model(self, obj):
+        return obj.model.name if obj.model else None
 
 class CarImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,6 +45,14 @@ class CarImageSerializer(serializers.ModelSerializer):
 class CarServiceDetailSerializer(serializers.ModelSerializer):
     subscription_options = serializers.SerializerMethodField()
     images = CarImageSerializer(many=True, read_only=True)
+    make = serializers.SerializerMethodField()
+    model = serializers.SerializerMethodField()
+    
+    def get_make(self, obj):
+        return obj.make.name if obj.make else None
+    
+    def get_model(self, obj):
+        return obj.model.name if obj.model else None
 
     class Meta:
         model = CarService
