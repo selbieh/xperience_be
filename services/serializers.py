@@ -47,7 +47,7 @@ class HotelServiceListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image']
+        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image']
 
     def get_image(self, obj):
         image = obj.images.first()
@@ -72,7 +72,8 @@ class HotelServiceDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images', 'address', 'location_lat', 'location_long', 'location_url']
+        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images', 'address', 'location_lat', 'location_long', 'location_url']
+        read_only_fields = ['name']
 
     def update(self, instance, validated_data):
         features_data = validated_data.pop('features', None)
@@ -98,6 +99,7 @@ class CarMakeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarMake
         fields = '__all__'
+        read_only_fields = ['name']
 
 class CarModelSerializer(serializers.ModelSerializer):
     make = serializers.StringRelatedField()  # Shows the make's name instead of the ID

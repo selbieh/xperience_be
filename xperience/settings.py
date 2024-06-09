@@ -14,6 +14,7 @@ from pathlib import Path
 import environ
 import os
 from datetime import timedelta
+from django.utils.translation import gettext_lazy as _
 
 env = environ.Env()
 env.read_env()
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     "drf_standardized_errors",
     'drf_spectacular',
     'drf_spectacular_sidecar',
+    'modeltranslation',
     "base",
     "users",
     "services",
@@ -150,8 +152,12 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = True 
 
+LANGUAGES = [
+    ("en", _("English")),
+    ("ar", _("Arabic")),
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
