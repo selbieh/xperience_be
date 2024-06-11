@@ -10,3 +10,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "email", "mobile", "wallet", "is_staff"]
         read_only_fields = ["wallet"]
 
+class CustomCallbackTokenAuthSerializer(serializers.ModelSerializer):
+    mobile = serializers.CharField()
+    class Meta:
+        model = User
+        fields = ['id', 'mobile']
+
