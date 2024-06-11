@@ -15,6 +15,7 @@ import environ
 import os
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
+from firebase_admin import initialize_app
 
 env = environ.Env()
 env.read_env()
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'modeltranslation',
+    "fcm_django",
     "base",
     "users",
     "services",
@@ -182,4 +184,12 @@ SIMPLE_JWT = {
 
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+FIREBASE_APP = initialize_app()
+
+FCM_DJANGO_SETTINGS = {
+    "DEFAULT_FIREBASE_APP": FIREBASE_APP,
+    "ONE_DEVICE_PER_USER": False,
+    "DELETE_INACTIVE_DEVICES": False,
+}
 
