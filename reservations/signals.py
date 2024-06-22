@@ -10,8 +10,8 @@ from fcm_django.models import FCMDevice
 def message_handler(sender, instance, created, **kwargs):
     status = instance.status
     if status == 'WAITING_FOR_PAYMENT':
-        title = ''
-        body= ''
+        title = 'Reservation Updates'
+        body= 'Your Reservaytion is Waiting for payment now'
     elif status == 'CONFIRMED':
         title = ''
         body= ''
