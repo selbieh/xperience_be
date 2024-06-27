@@ -127,7 +127,7 @@ class CarMakeSerializer(serializers.ModelSerializer):
         read_only_fields = ['name']
 
 class CarModelSerializer(serializers.ModelSerializer):
-    make = serializers.StringRelatedField()  # Shows the make's name instead of the ID
+    make = serializers.PrimaryKeyRelatedField(queryset=CarMake.objects.all())
     class Meta:
         model = CarModel
         fields = '__all__'

@@ -13,6 +13,7 @@ class CarMake(AbstractBaseModel):
 
 class CarModel(AbstractBaseModel):
     name = models.CharField(max_length=100, unique=True, default="model")
+    make = models.ForeignKey(CarMake, related_name='car_model', on_delete=models.PROTECT, default=2)
 
     def __str__(self):
         return self.name

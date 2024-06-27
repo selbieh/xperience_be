@@ -119,6 +119,9 @@ class HotelServiceFeatureViewSet(viewsets.ModelViewSet):
 class CarMakeViewSet(viewsets.ModelViewSet):
     queryset = CarMake.objects.all()
     serializer_class = CarMakeSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['name']
+    filterset_fields = ['name']
 
     def get_permissions(self):
         if self.request.method in ['GET']:
@@ -130,6 +133,9 @@ class CarMakeViewSet(viewsets.ModelViewSet):
 class CarModelViewSet(viewsets.ModelViewSet):
     queryset = CarModel.objects.all()
     serializer_class = CarModelSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['name', 'make']
+    filterset_fields = ['name', 'make']
 
     def get_permissions(self):
         if self.request.method in ['GET']:
