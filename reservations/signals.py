@@ -13,14 +13,14 @@ def message_handler(sender, instance, created, **kwargs):
         title = 'Reservation Updates'
         body= 'Your Reservaytion is Waiting for payment now'
     elif status == 'CONFIRMED':
-        title = ''
-        body= ''
+        title = 'Confirmed'
+        body= 'Your Reservaytion is Confirmed'
     elif status == 'CANCELLED':
-        title = ''
-        body= ''
+        title = 'Cancelled'
+        body= 'Your Reservaytion is Cancelled'
     elif status == 'COMPLETED':
-        title = ''
-        body= ''
+        title = 'Completed'
+        body= 'You have earned 100 points'
 
     try:
         register_tokens = FCMDevice.objects.filter(user=instance.user)
