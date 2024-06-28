@@ -21,7 +21,7 @@ class SubscriptionOptionSerializer(serializers.ModelSerializer):
     car_service = CarServiceMinimalSerializer()
     class Meta:
         model = SubscriptionOption
-        fields = ['id', 'duration_hours', 'price', 'car_service', "type"]
+        fields = ['id', 'duration_hours', 'price', 'car_service', "type", "points"]
 
 
 class CarServiceListSerializer(serializers.ModelSerializer):
@@ -72,7 +72,7 @@ class HotelServiceListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image']
+        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image', 'points']
 
     def get_image(self, obj):
         image = obj.images.first()
@@ -97,7 +97,7 @@ class HotelServiceDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images', 'address', 'location_lat', 'location_long', 'location_url']
+        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images', 'address', 'location_lat', 'location_long', 'location_url', 'points']
         read_only_fields = ['name']
 
     def update(self, instance, validated_data):

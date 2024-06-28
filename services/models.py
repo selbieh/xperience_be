@@ -36,6 +36,7 @@ class SubscriptionOption(AbstractBaseModel):
     car_service = models.ForeignKey(CarService, on_delete=models.CASCADE, related_name='subscription_options')
     duration_hours = models.IntegerField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    points = models.IntegerField(null=True, blank=True)
 
 
 class CarImage(models.Model):
@@ -62,6 +63,7 @@ class HotelService(AbstractBaseModel):
     features = models.ManyToManyField(HotelServiceFeature)
     availability_start = models.DateField(null=True, blank=True)
     availability_end = models.DateField(null=True, blank=True)
+    points = models.IntegerField(null=True, blank=True)
 
 
 class HotelImage(models.Model):
