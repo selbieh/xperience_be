@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from .models import Reservation
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
+from base.models import UserNotification
 
 
 
@@ -11,16 +12,16 @@ def message_handler(sender, instance, created, **kwargs):
     status = instance.status
     if status == 'WAITING_FOR_PAYMENT':
         title = 'Reservation Updates'
-        body= 'Your Reservaytion is Waiting for payment now'
+        body= 'Your Reservation is Waiting for Payment'
     elif status == 'CONFIRMED':
         title = 'Confirmed'
-        body= 'Your Reservaytion is Confirmed'
+        body= 'Your Reservation is Confirmed'
     elif status == 'CANCELLED':
         title = 'Cancelled'
-        body= 'Your Reservaytion is Cancelled'
+        body= 'Your Reservation is Cancelled'
     elif status == 'COMPLETED':
         title = 'Completed'
-        body= 'You have earned 100 points'
+        body= 'You have earned 100 Points'
 
     try:
         register_tokens = FCMDevice.objects.filter(user=instance.user)
@@ -28,5 +29,11 @@ def message_handler(sender, instance, created, **kwargs):
             title=title,
             body=body
         )))
+
+        UserNotification.objects.create(
+            user=instance.user,
+            title=title,
+            body=body
+        )
     except Exception as e:
         print(e)

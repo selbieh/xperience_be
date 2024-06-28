@@ -1,4 +1,5 @@
 from django.db import models
+from users.models import User
 
 class AbstractBaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -26,3 +27,10 @@ class Policy(models.Model):
 class FAQ(models.Model):
     question = models.TextField()
     answer = models.TextField()
+
+
+class UserNotification(AbstractBaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=50)
+    body = models.CharField(max_length=255)
+    read = models.BooleanField(default=False)
