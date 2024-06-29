@@ -232,3 +232,5 @@ CORS_ALLOWED_ORIGINS = [
     "https://api.xperiences.vip",
     "https://dashboard.xperiences.vip"
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://*.xperiences.vip.com']
