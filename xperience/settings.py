@@ -33,7 +33,7 @@ DEBUG= env.bool("DEBUG", default=False)
 
 SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = ["https://api.xperiences.vip"]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
