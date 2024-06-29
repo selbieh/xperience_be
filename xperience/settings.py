@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG= env("DEBUG", default="True")
+DEBUG= env.bool("DEBUG", default=True)
 
 SECRET_KEY = env("SECRET_KEY")
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    'storages',
     "phonenumber_field",
     "rest_framework",
     "rest_framework.authtoken",
@@ -161,14 +162,6 @@ LANGUAGES = [
     ("ar", _("Arabic")),
 ]
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = "/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -192,4 +185,48 @@ FCM_DJANGO_SETTINGS = {
     "ONE_DEVICE_PER_USER": False,
     "DELETE_INACTIVE_DEVICES": False,
 }
+
+
+
+Django_AWS_STORAGE_BUCKET_NAME = env('Django_AWS_STORAGE_BUCKET_NAME')
+Django_AWS_S3_REGION_NAME = env("Django_AWS_S3_REGION_NAME")
+Django_AWS_S3_CUSTOM_DOMAIN = f'{Django_AWS_STORAGE_BUCKET_NAME}.{Django_AWS_S3_REGION_NAME}.digitaloceanspaces.com'
+Django_AWS_ACCESS_KEY_ID = env('Django_AWS_ACCESS_KEY_ID')
+Django_AWS_SECRET_ACCESS_KEY = env('Django_AWS_SECRET_ACCESS_KEY')
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+          "bucket_name": Django_AWS_STORAGE_BUCKET_NAME,
+          "region_name": Django_AWS_S3_REGION_NAME,
+          "endpoint_url": f"https://{Django_AWS_S3_CUSTOM_DOMAIN}",
+          "access_key": Django_AWS_ACCESS_KEY_ID,
+          "secret_key": Django_AWS_SECRET_ACCESS_KEY,
+          "querystring_auth": False,
+          "default_acl": "public-read-write" 
+        },
+    },
+        "staticfiles": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+          "bucket_name": Django_AWS_STORAGE_BUCKET_NAME,
+          "region_name": Django_AWS_S3_REGION_NAME,
+          "endpoint_url": f"https://{Django_AWS_S3_CUSTOM_DOMAIN}",
+          "access_key": Django_AWS_ACCESS_KEY_ID,
+          "secret_key": Django_AWS_SECRET_ACCESS_KEY,
+          "querystring_auth": False,
+          "default_acl": "public-read-write" 
+        },
+    },
+}
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_URL = f'https://{Django_AWS_S3_CUSTOM_DOMAIN}/static/'
+MEDIA_URL = f'https://{Django_AWS_S3_CUSTOM_DOMAIN}/media/'
+
+
 
