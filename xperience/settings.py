@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG= env.bool("DEBUG", default=True)
+DEBUG= env.bool("DEBUG", default=False)
 
 SECRET_KEY = env("SECRET_KEY")
 
@@ -230,3 +230,4 @@ MEDIA_URL = f'https://{Django_AWS_S3_CUSTOM_DOMAIN}/media/'
 
 
 
+print(DEBUG)
