@@ -33,7 +33,7 @@ DEBUG= env.bool("DEBUG", default=False)
 
 SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["https://api.xperiences.vip"]
 
 # Application definition
 
@@ -234,3 +234,6 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = ['https://*.xperiences.vip.com']
+
+
+CSRF_USE_SESSIONS = False
