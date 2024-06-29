@@ -227,3 +227,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = f'https://{Django_AWS_S3_CUSTOM_DOMAIN}/static/'
 MEDIA_URL = f'https://{Django_AWS_S3_CUSTOM_DOMAIN}/media/'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://api.xperiences.vip",
+]
