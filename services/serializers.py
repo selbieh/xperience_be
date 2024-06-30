@@ -45,18 +45,19 @@ class CarImageSerializer(serializers.ModelSerializer):
 class CarServiceDetailSerializer(serializers.ModelSerializer):
     subscription_options = serializers.SerializerMethodField()
     images = CarImageSerializer(many=True, read_only=True)
-    make = serializers.SerializerMethodField()
-    model = serializers.SerializerMethodField()
+    make_name = serializers.SerializerMethodField()
+    model_name = serializers.SerializerMethodField()
     
-    def get_make(self, obj):
+    def get_make_name(self, obj):
         return obj.make.name if obj.make else None
     
-    def get_model(self, obj):
+    def get_model_name(self, obj):
         return obj.model.name if obj.model else None
 
     class Meta:
         model = CarService
-        fields = ['id', 'model', 'make', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool', 'image', 'subscription_options', 'images']
+        fields = ['id', 'model', 'make', 'model_name', 'make_name', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool', 'image', 'subscription_options', 'images']
+        read_only_fields = ['model_name', 'make_name']
 
     def get_subscription_options(self, obj):
         request = self.context.get('request', None)
