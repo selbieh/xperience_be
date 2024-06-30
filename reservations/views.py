@@ -7,6 +7,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
+from .filters import FilterReservation
+from django.db.models import Sum, Count
 
 class ReservationFilter(filters.FilterSet):
     has_car_reservations = filters.BooleanFilter(method='filter_car_reservations')
@@ -67,3 +69,42 @@ class ReservationViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
+class FilterReservationViewSet(viewsets.ModelViewSet):
+    queryset = Reservation.objects.all()
+    serializer_class = ReservationSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = FilterReservation
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        totals_qs = queryset.aggregate(
+            total_final_price_car=Sum("car_reservations__final_price"),
+            total_final_price_hotel=Sum("hotel_reservations__final_price"),
+        )
+        total_final_price_car = totals_qs["total_final_price_car"]
+        total_final_price_hotel = totals_qs["total_final_price_hotel"]
+
+        total_reservations = queryset.annotate(
+            car_reservations_count=Count("car_reservations"),
+            hotel_reservations_count=Count("hotel_reservations")
+        )
+        # Car Reservations
+        car_reservations = total_reservations.values("car_reservations_count")
+        total_car_reservations = sum(res['car_reservations_count'] for res in car_reservations)
+
+        # Hotel Reservations
+        hotel_reservations = total_reservations.values("hotel_reservations_count")
+        total_hotel_reservations = sum(res['hotel_reservations_count'] for res in hotel_reservations)
+        
+        response = super().list(request, *args, **kwargs)
+        count = response.data["count"]
+        return Response(
+            {
+                "total_reservations": count,
+                "total_final_price_car": total_final_price_car,
+                "total_final_price_hotel": total_final_price_hotel,
+                "total_car_reservations": total_car_reservations,
+                "total_hotel_reservations": total_hotel_reservations,
+            },
+            status=status.HTTP_200_OK,
+        )
