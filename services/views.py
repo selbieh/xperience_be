@@ -134,7 +134,7 @@ class CarModelViewSet(viewsets.ModelViewSet):
     queryset = CarModel.objects.all()
     serializer_class = CarModelSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ['name']
+    search_fields = ['name', 'make']
     filterset_fields = ['name', 'make']
 
     def get_permissions(self):

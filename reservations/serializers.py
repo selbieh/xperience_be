@@ -69,11 +69,12 @@ class ReservationSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at']
 
     def validate(self, data):
-        if self.instance is None:
-            car_reservations = data.get('car_reservations', None)
-            hotel_reservations = data.get('hotel_reservations', None)
-            if not car_reservations and not hotel_reservations:
-                raise serializers.ValidationError("At least one CarReservation or HotelReservation is required.")
+        car_reservations = data.get('car_reservations', None)
+        hotel_reservations = data.get('hotel_reservations', None)
+
+        if not car_reservations and not hotel_reservations:
+            raise serializers.ValidationError("At least one CarReservation or HotelReservation is required.")
+
         return data
 
     def create(self, validated_data):

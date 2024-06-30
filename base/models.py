@@ -34,11 +34,3 @@ class UserNotification(AbstractBaseModel):
     title = models.CharField(max_length=50)
     body = models.CharField(max_length=255)
     read = models.BooleanField(default=False)
-
-
-class AdminNotification(AbstractBaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=50)
-    body = models.CharField(max_length=255)
-    read = models.BooleanField(default=False)
-    reservation = models.ForeignKey("reservations.Reservation", related_name="admin_notifications", on_delete=models.CASCADE)
