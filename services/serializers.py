@@ -129,6 +129,10 @@ class CarMakeSerializer(serializers.ModelSerializer):
 
 class CarModelSerializer(serializers.ModelSerializer):
     make = serializers.PrimaryKeyRelatedField(queryset=CarMake.objects.all())
+    make_name = serializers.SerializerMethodField()
+
+    def get_make_name(self, obj):
+        return obj.make.name if obj.make else None
     class Meta:
         model = CarModel
-        fields = '__all__'
+        fields = ['id', 'name', 'make', 'make_name', "active"]
