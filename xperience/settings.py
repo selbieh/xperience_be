@@ -33,7 +33,7 @@ DEBUG= env.bool("DEBUG", default=False)
 
 SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = ['api.xperiences.vip', 'xperiences.vip', 'dashboard.xperiences.vip']
+ALLOWED_HOSTS = ['api.xperiences.vip', 'xperiences.vip', 'dashboard.xperiences.vip', "*"]
 
 # Application definition
 

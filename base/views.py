@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
-from .models import Policy, FAQ, UserNotification
-from .serializers import PolicySerializer, FAQSerializer, NotificationSerializer
+from .models import Policy, FAQ, UserNotification, AdminNotification
+from .serializers import PolicySerializer, FAQSerializer, NotificationSerializer, AdminNotificationSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
 class PolicyViewSet(ModelViewSet):
@@ -35,3 +35,11 @@ class NotificationViewSet(ModelViewSet):
 
     def get_queryset(self):
         return UserNotification.objects.filter(user=self.request.user).order_by('-created_at')
+    
+
+class AdminNotificationViewSet(ModelViewSet):
+    serializer_class = AdminNotificationSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get_queryset(self):
+        return AdminNotification.objects.all().order_by('-created_at')
