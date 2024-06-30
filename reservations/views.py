@@ -6,13 +6,31 @@ from .serializers import ReservationSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filters
+
+class ReservationFilter(filters.FilterSet):
+    has_car_reservations = filters.BooleanFilter(method='filter_car_reservations')
+    has_hotel_reservations = filters.BooleanFilter(method='filter_hotel_reservations')
+
+    class Meta:
+        model = Reservation
+        fields = ['status', 'has_car_reservations', 'has_hotel_reservations']
+
+    def filter_car_reservations(self, queryset, name, value):
+        if value:
+            return queryset.filter(car_reservations__isnull=False).distinct()
+        return queryset.filter(car_reservations__isnull=True).distinct()
+
+    def filter_hotel_reservations(self, queryset, name, value):
+        if value:
+            return queryset.filter(hotel_reservations__isnull=False).distinct()
+        return queryset.filter(hotel_reservations__isnull=True).distinct()
 
 class ReservationViewSet(viewsets.ModelViewSet):
     serializer_class = ReservationSerializer
-
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['user__mobile', 'created_by__name']
-    filterset_fields = ['status']
+    filterset_class = ReservationFilter
 
     def get_permissions(self):
         if self.request.method in ['GET', 'POST']:
