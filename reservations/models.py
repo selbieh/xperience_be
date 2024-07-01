@@ -56,27 +56,6 @@ class HotelReservationOption(AbstractBaseModel):
     quantity = models.IntegerField()
 
 
-class Payment(AbstractBaseModel):
-    PAYMENT_STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('COMPLETED', 'Completed'),
-        ('FAILED', 'Failed'),
-    ]
-
-    PAYMENT_METHOD_CHOICES = [
-        ('CREDIT_CARD', 'Credit Card'),
-        ('WALLET', 'Wallet'),
-        ('CASH_ON_DELIVERY', 'Cash on Delivery'),
-        ('CAR_POS', 'Car Point of Sale'),
-        ('POINTS', 'Points')
-    ]
-
-    reservation = models.OneToOneField(Reservation, on_delete=models.CASCADE, related_name='payment')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='PENDING')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
-    transaction_id = models.CharField(max_length=100, null=True, blank=True)
-    payment_date = models.DateTimeField(null=True, blank=True)
 
 
 
