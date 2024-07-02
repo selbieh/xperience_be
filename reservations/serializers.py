@@ -63,11 +63,10 @@ class ReservationSerializer(serializers.ModelSerializer):
     hotel_reservations = HotelReservationSerializer(many=True, required=False)
     created_by = UserProfileSerializer(read_only=True)
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
-    user_details = UserProfileSerializer(source='user', read_only=True)
 
     class Meta:
         model = Reservation
-        fields = ['id', 'user', 'user_details', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at']
+        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at']
 
     def validate(self, data):
         if self.instance is None:
@@ -128,3 +127,14 @@ class ReservationSerializer(serializers.ModelSerializer):
                 hotel_reservation.save()
 
         return reservation
+
+
+class ReservationDetailSerializer(serializers.ModelSerializer):
+    car_reservations = CarReservationSerializer(many=True, read_only=True)
+    hotel_reservations = HotelReservationSerializer(many=True, read_only=True)
+    created_by = UserProfileSerializer(read_only=True)
+    user = UserProfileSerializer(read_only=True)  # Include user details
+
+    class Meta:
+        model = Reservation
+        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at']
