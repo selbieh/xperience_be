@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "users",
     "services",
     "reservations",
+    "payment"
 ]
 
 REST_FRAMEWORK = {
