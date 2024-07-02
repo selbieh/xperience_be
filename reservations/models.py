@@ -11,9 +11,18 @@ class Reservation(AbstractBaseModel):
         ('COMPLETED', 'Completed'),
     ]
 
+    PAYMENT_METHOD_CHOICES = [
+        ('CREDIT_CARD', 'Credit Card'),
+        ('WALLET', 'Wallet'),
+        ('CASH_ON_DELIVERY', 'Cash on Delivery'),
+        ('CAR_POS', 'Car Point of Sale'),
+        ('POINTS', 'Points')
+    ]
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='WAITING_FOR_PAYMENT')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reservations')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_reservations')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='CASH_ON_DELIVERY')
 
 
 class CarReservation(AbstractBaseModel):
