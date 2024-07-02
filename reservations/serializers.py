@@ -63,10 +63,11 @@ class ReservationSerializer(serializers.ModelSerializer):
     hotel_reservations = HotelReservationSerializer(many=True, required=False)
     created_by = UserProfileSerializer(read_only=True)
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    user_details = UserProfileSerializer(source='user', read_only=True)
 
     class Meta:
         model = Reservation
-        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at']
+        fields = ['id', 'user', 'user_details', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at']
 
     def validate(self, data):
         if self.instance is None:
