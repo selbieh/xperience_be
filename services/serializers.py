@@ -74,17 +74,10 @@ class CarServiceDetailSerializer(serializers.ModelSerializer):
 
 
 class HotelServiceListSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
 
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image', 'points']
-
-    def get_image(self, obj):
-        image = obj.images.first()
-        if image:
-            return image.image.url
-        return None
+        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image', 'points', 'image']
 
 
 class HotelServiceFeatureSerializer(serializers.ModelSerializer):
