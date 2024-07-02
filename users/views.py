@@ -26,9 +26,12 @@ class UserProfileViewSet(ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    def get_object(self):
-        return self.request.user
+    def get_queryset(self):
 
+        user = self.request.user
+        if user.is_staff:
+            return User.objects.all()
+        return User.objects.filter(id=user.id)
 
 
 # class CustomObtainAuthToken(APIView):

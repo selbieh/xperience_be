@@ -30,16 +30,16 @@ class SubscriptionOptionWriteSerializer(serializers.ModelSerializer):
 
 
 class CarServiceListSerializer(serializers.ModelSerializer):
-    make = serializers.SerializerMethodField()
-    model = serializers.SerializerMethodField()
+    make_name = serializers.SerializerMethodField()
+    model_name = serializers.SerializerMethodField()
     class Meta:
         model = CarService
-        fields = ['id', 'model', 'make', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool', 'image']
+        fields = ['id', 'model', 'make', 'model_name', 'make_name', 'description', 'number_of_seats', 'year', 'color', 'type', 'cool', 'image']
 
-    def get_make(self, obj):
+    def get_make_name(self, obj):
         return obj.make.name if obj.make else None
     
-    def get_model(self, obj):
+    def get_model_name(self, obj):
         return obj.model.name if obj.model else None
 
 class CarImageSerializer(serializers.ModelSerializer):
@@ -74,17 +74,10 @@ class CarServiceDetailSerializer(serializers.ModelSerializer):
 
 
 class HotelServiceListSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
 
     class Meta:
         model = HotelService
         fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image', 'points']
-
-    def get_image(self, obj):
-        image = obj.images.first()
-        if image:
-            return image.image.url
-        return None
 
 
 class HotelServiceFeatureSerializer(serializers.ModelSerializer):

@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.db import transaction
 from .models import Reservation
-from .serializers import ReservationSerializer
+from .serializers import ReservationSerializer, ReservationDetailSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -33,6 +33,11 @@ class ReservationViewSet(viewsets.ModelViewSet):
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['user__mobile', 'created_by__name']
     filterset_class = ReservationFilter
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return ReservationDetailSerializer
+        return ReservationSerializer
 
     def get_permissions(self):
         if self.request.method in ['GET', 'POST']:

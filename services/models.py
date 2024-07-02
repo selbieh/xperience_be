@@ -64,6 +64,7 @@ class HotelService(AbstractBaseModel):
     availability_start = models.DateField(null=True, blank=True)
     availability_end = models.DateField(null=True, blank=True)
     points = models.IntegerField(null=True, blank=True)
+    image = models.ImageField(upload_to='hotel_image/', blank=True, null=True)
 
 
 class HotelImage(models.Model):
