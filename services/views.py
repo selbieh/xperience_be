@@ -7,7 +7,7 @@ from .models import CarService, HotelService, HotelImage, CarImage, Subscription
 from .serializers import (
     CarServiceListSerializer, CarServiceDetailSerializer, 
     HotelServiceListSerializer, HotelServiceDetailSerializer, HotelImageSerializer, CarImageSerializer, SubscriptionOptionSerializer,
-    ServiceOptionSerializer, HotelServiceFeatureSerializer, CarMakeSerializer, CarModelSerializer
+    ServiceOptionSerializer, HotelServiceFeatureSerializer, CarMakeSerializer, CarModelSerializer, SubscriptionOptionWriteSerializer
 )
 
 class CarServiceViewSet(viewsets.ModelViewSet):
@@ -90,6 +90,11 @@ class SubscriptionOptionViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
+    
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PATCH']:
+            return SubscriptionOptionWriteSerializer
+        return SubscriptionOptionSerializer
 
 
 class ServiceOptionViewSet(viewsets.ModelViewSet):

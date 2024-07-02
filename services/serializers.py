@@ -23,6 +23,11 @@ class SubscriptionOptionSerializer(serializers.ModelSerializer):
         model = SubscriptionOption
         fields = ['id', 'duration_hours', 'price', 'car_service', "type", "points"]
 
+class SubscriptionOptionWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubscriptionOption
+        fields = ['id', 'duration_hours', 'price', 'car_service', "type", "points"]
+
 
 class CarServiceListSerializer(serializers.ModelSerializer):
     make = serializers.SerializerMethodField()
