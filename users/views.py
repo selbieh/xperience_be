@@ -10,11 +10,14 @@ from rest_framework.views import APIView
 from drfpasswordless.serializers import CallbackTokenAuthSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class UserProfileViewSet(ModelViewSet):
-    filter_backends = [SearchFilter]
+    filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['mobile']
+    filterset_fields = ['is_staff']
+
 
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer

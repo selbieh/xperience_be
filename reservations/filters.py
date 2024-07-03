@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from .models import Reservation, CarReservation
+from .models import Reservation, CarReservation, SubscriptionOption
 from services.models import HotelServiceFeature
 
 
@@ -15,14 +15,15 @@ class filter_by_car_reservation(filters.FilterSet):
 
 class FilterReservation(filters.FilterSet):
     # Car Service
-    model = filters.CharFilter(
-        field_name="car_reservations__car_service__model__name", lookup_expr="icontains"
+    model_id = filters.NumberFilter(
+        field_name="car_reservations__car_service__model__id"
     )
-    make = filters.CharFilter(
-        field_name="car_reservations__car_service__make__name", lookup_expr="icontains"
+    make_id = filters.NumberFilter(
+        field_name="car_reservations__car_service__make__id"
     )
-    car_subscription_type = filters.BooleanFilter(
-        field_name="car_reservations__subscription_option__type"
+    car_subscription_type = filters.ChoiceFilter(
+        field_name="car_reservations__subscription_option__type",
+        choices=[('RIDE', 'Ride'), ('TRAVEL', 'Travel'), ('AIRPORT', 'Airport')]
     )
     car_subscription_duration = filters.NumberFilter(
         field_name="car_reservations__subscription_option__duration_hours"
@@ -30,16 +31,19 @@ class FilterReservation(filters.FilterSet):
     
     # Hotel Service
     number_of_rooms = filters.NumberFilter(
-        field_name='hotel_reservations__number_of_rooms'
+        field_name='hotel_reservations__hotel_service__number_of_rooms'
     )
-    number_of_rooms = filters.NumberFilter(
-        field_name='hotel_reservations__number_of_beds'
+    number_of_beds = filters.NumberFilter(
+        field_name='hotel_reservations__hotel_service__number_of_beds'
     )
     features = filters.ModelMultipleChoiceFilter(
-        field_name='hotel_reservations__features__id',
-        queryset=HotelServiceFeature.objects.all()
+        field_name='hotel_reservations__hotel_service__features',
+        queryset=HotelServiceFeature.objects.all(),
+        to_field_name='id'
     )
+
+    created_at = filters.DateFromToRangeFilter()
 
     class Meta:
         model = Reservation
-        fields = ["status", "user", "created_by", "model", "make"]
+        fields = ["status", "user", "created_by", "payment_method"]
