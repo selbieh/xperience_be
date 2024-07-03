@@ -25,11 +25,11 @@ class PayTabsGateway:
             "cart_description": "payment for Event",
             "cart_currency": "EGP",
             "cart_amount": price,
-            "callback": "https://wee-dev-api.shelter-technology.com/api/v1/payment/call-back/",
+            "callback": "https://api.xperiences.vip/api/payment/call-back/",
             # "return": "https://wee-dashboard.shelter-technology.com/home",
             "hide_shipping": True,
             "framed": True,
-            "customer_details": {"name": user.name, "email": user.email, "phone": str(user.mobile_number)},
+            "customer_details": {"name": user.name, "email": user.email, "phone": str(user.mobile)},
         }
         url = f'{self.config.get("base_url")}/payment/request'
         status, response = handle_request(method="POST", url=url, payload=payload, headers=headers)

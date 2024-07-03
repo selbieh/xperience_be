@@ -232,3 +232,9 @@ MEDIA_URL = f'https://{Django_AWS_S3_CUSTOM_DOMAIN}/media/'
 CSRF_TRUSTED_ORIGINS = [
     "https://api.xperiences.vip",
 ]
+
+PAYTABS = {
+    "PAYTABS_BASEURL": env("PAYTABS_BASEURL", default=""),
+    "PAYTABS_PROFILE": env("PAYTABS_PROFILE", default=""),
+    "PAYTABS_AUTH": env("PAYTABS_AUTH", default=""),
+}
