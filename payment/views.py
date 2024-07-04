@@ -42,7 +42,7 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TransactionSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter)
     filterset_class = TransactionFilter
-    search_fields = ["tran_ref", "user__name", "user__email", "user__mobile_number"]
+    search_fields = ["tran_ref", "user__name", "user__email", "user__mobile"]
 
     def get_queryset(self):
         qs = Transaction.objects.all()
