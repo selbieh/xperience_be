@@ -34,6 +34,7 @@ class CarReservationSerializer(serializers.ModelSerializer):
             'dropoff_address', 'dropoff_lat', 'dropoff_long', 'dropoff_url', 'terminal', 'flight_number',
             'extras', 'final_price', 'subscription_option', 'options'
         ]
+        read_only_fields=["final_price"]
 
 class HotelReservationOptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,6 +58,7 @@ class HotelReservationSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'hotel_service_id', 'hotel_service', 'check_in_date', 'check_out_date', 'extras', 'final_price', 'options'
         ]
+        read_only_fields=["final_price"]
 
 class ReservationSerializer(serializers.ModelSerializer):
     car_reservations = CarReservationSerializer(many=True, required=False)
@@ -66,7 +68,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at']
+        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method']
 
     def validate(self, data):
         if self.instance is None:
@@ -137,4 +139,4 @@ class ReservationDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at']
+        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method']
