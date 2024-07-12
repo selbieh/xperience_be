@@ -65,7 +65,15 @@ class ReservationViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user, status='WAITING_FOR_PAYMENT')
+        payment_method = serializer.validated_data.get('payment_method')
+        if payment_method in ['CREDIT_CARD']:
+            status = 'WAITING_FOR_PAYMENT'
+        if payment_method in ['POINTS', 'WALLET']:
+            status = 'CONFIRMED'
+        else:
+            status = 'WAITING_FOR_CONFIRMATION'
+        
+        serializer.save(created_by=self.request.user, status=status)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

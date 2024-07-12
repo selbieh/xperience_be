@@ -6,8 +6,11 @@ from services.models import ServiceOption, HotelService, CarService, Subscriptio
 class Reservation(AbstractBaseModel):
     STATUS_CHOICES = [
         ('WAITING_FOR_PAYMENT', 'Waiting for Payment'),
+        ('WAITING_FOR_CONFIRMATION', 'Waiting for Confirmation'),
         ('CONFIRMED', 'Confirmed'),
+        ('PAID', 'Paid'),
         ('CANCELLED', 'Cancelled'),
+        ('REFUNDED', 'Refunded'),
         ('COMPLETED', 'Completed'),
     ]
 
@@ -19,7 +22,7 @@ class Reservation(AbstractBaseModel):
         ('POINTS', 'Points')
     ]
 
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='WAITING_FOR_PAYMENT')
+    status = models.CharField(max_length=25, choices=STATUS_CHOICES, default='WAITING_FOR_CONFIRMATION')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reservations')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_reservations')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='CASH_ON_DELIVERY')
@@ -42,6 +45,7 @@ class CarReservation(AbstractBaseModel):
     flight_number = models.CharField(max_length=100, null=True, blank=True)
     extras = models.TextField(null=True, blank=True)
     final_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    final_points_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 
 class CarReservationOption(AbstractBaseModel):
@@ -57,6 +61,7 @@ class HotelReservation(AbstractBaseModel):
     check_out_date = models.DateField()
     extras = models.TextField(null=True, blank=True)
     final_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    final_points_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 
 class HotelReservationOption(AbstractBaseModel):

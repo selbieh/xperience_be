@@ -99,7 +99,7 @@ class CallBackSerializer(serializers.Serializer):
         if payment_result.get("response_status") == "A":
             transaction.success = True
             reservation = transaction.reservation
-            reservation.status = "CONFIRMED"
+            reservation.status = "PAID"
             reservation.save()
         transaction.save()
         return transaction
