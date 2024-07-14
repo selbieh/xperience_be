@@ -37,7 +37,7 @@ class SubscriptionOption(AbstractBaseModel):
     duration_hours = models.IntegerField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     points = models.IntegerField(null=True, blank=True, default=0)
-    points_price = models.IntegerField(null=True)
+    points_price = models.IntegerField(null=True, blank=True, default=None)
 
 
 class CarImage(models.Model):
@@ -66,7 +66,7 @@ class HotelService(AbstractBaseModel):
     availability_end = models.DateField(null=True, blank=True)
     image = models.ImageField(upload_to='hotel_image/', blank=True, null=True)
     points = models.IntegerField(null=True, blank=True, default=0)
-    points_price = models.IntegerField(null=True)
+    points_price = models.IntegerField(null=True, blank=True, default=None)
 
 
 class HotelImage(models.Model):
@@ -84,5 +84,5 @@ class ServiceOption(AbstractBaseModel):
     max_free = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     active = models.BooleanField(default=True)
-    points_price = models.IntegerField(null=True)
+    points_price = models.IntegerField(null=True, blank=True, default=None)
 
