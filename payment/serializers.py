@@ -17,6 +17,8 @@ class PaySerializer(serializers.Serializer):
     def validate_reservation_id(self, value):
         try:
             reservation = Reservation.objects.filter(status="WAITING_FOR_PAYMENT", payment_method="CREDIT_CARD").get(id=value)
+            if Transaction.objects.filter(reservation=reservation, is_refund=False, refunded=False, success=True).exists():
+                raise serializers.ValidationError("This reservation is already paid")
         except Reservation.DoesNotExist:
             raise serializers.ValidationError("Invalid reservation ID")
         return value
@@ -65,48 +67,94 @@ class PaySerializer(serializers.Serializer):
 
 class RefundSerializer(serializers.Serializer):
     reservation_id = serializers.PrimaryKeyRelatedField(
-        queryset=Reservation.objects.filter(status="CANCELLED", payment_method="CREDIT_CARD")
+        queryset=Reservation.objects.filter()
     )
- 
+    refund_method = serializers.ChoiceField(choices=['WALLET', 'POINTS', 'CREDIT_CARD'], required=False)
+
     # TODO need to be cleaned
     def save(self, commit=True):
         user = self.context.get("request").user
         reservation = self.validated_data["reservation_id"]
-        transaction = reservation.transactions.filter(success=True, is_refund=False).last()
-        paid_price = float(transaction.amount)
+
+        car_reservations = reservation.car_reservations.all()
+        hotel_reservations = reservation.hotel_reservations.all()
+        paid_price = sum([cr.final_price for cr in car_reservations if cr.final_price]) + \
+                                 sum([hr.final_price for hr in hotel_reservations if hr.final_price])
         refund_amount = paid_price
         cancellation_fee = refund_fee = 0
+        refund_method = self.validated_data["refund_method"]
+
+        if reservation.status == "REFUNDED":
+            raise serializers.ValidationError("This reservation is already refunded")
         if reservation.status != "CANCELLED":
-            raise serializers.ValidationError("You can't Refund this Reservation")
+            raise serializers.ValidationError("You Shoud Cancel the Reservation first to Refund it")      
         if not commit:
             return True, {"refund_amount": refund_amount, "cancellation_fee": cancellation_fee or refund_fee}
-        refund_transaction = Transaction.objects.create(
-            user=user,
-            amount=refund_amount + cancellation_fee,
-            is_refund=True,
-            reservation=reservation,
-        )
-        gateway = PayTabsGateway()
-        _status, response = gateway.refund(
-            amount=float(refund_amount), tran_id=transaction.id, tran_ref=transaction.tran_ref
-        )
-        if not _status:
+
+        if refund_method == 'WALLET' and reservation.payment_method in ["CREDIT_CARD", "WALLET"] and reservation.status == "CANCELLED":
+            # Perform wallet refund
+            user.wallet += refund_amount
+            user.save()
+            reservation.status = "REFUNDED"
+            reservation.save()
+
+            # Update the existing transaction to mark it as refunded and indicate it's a wallet operation
+            if reservation.payment_method == "CREDIT_CARD":
+                transaction = reservation.transactions.filter(success=True, is_refund=False).last()
+                transaction.refunded = True
+                transaction.wallet = True
+                transaction.save()
+
+            return True, {"message": "Refunded successfully to wallet"}
+        
+        
+        if refund_method == 'POINTS' and reservation.payment_method == "POINTS" and reservation.status == "CANCELLED":
+            # Perform wallet refund
+            car_reservations = reservation.car_reservations.all()
+            hotel_reservations = reservation.hotel_reservations.all()
+            final_points_price = sum([cr.final_points_price for cr in car_reservations if cr.final_points_price]) + \
+                                 sum([hr.final_points_price for hr in hotel_reservations if hr.final_points_price])
+            
+            user.points += final_points_price
+            user.save()
+            reservation.status = "REFUNDED"
+            reservation.save()
+            return True, {"message": "Refunded successfully to your points"}
+
+
+        if refund_method == 'CREDIT_CARD' and reservation.payment_method == "CREDIT_CARD" and reservation.status == "CANCELLED":
+            transaction = reservation.transactions.filter(success=True, is_refund=False).last()
+            refund_transaction = Transaction.objects.create(
+                user=user,
+                amount=refund_amount + cancellation_fee,
+                is_refund=True,
+                reservation=reservation,
+            )
+            gateway = PayTabsGateway()
+            _status, response = gateway.refund(
+                amount=float(refund_amount), tran_id=transaction.id, tran_ref=transaction.tran_ref
+            )
+            if not _status:
+                refund_transaction.pending = False
+                return False, response
+            reservation.status = "REFUNDED"
+            transaction.refunded = True
+            reservation.save()
+            transaction.save()
+            json_response = response.json()
+            refund_tran_ref = json_response.get("tran_ref")
+            refund_transaction.tran_ref = refund_tran_ref
+            refund_transaction.success = True
             refund_transaction.pending = False
-            return False, response
-        reservation.status = "REFUNDED"
-        transaction.refunded = True
-        reservation.save()
-        transaction.save()
-        json_response = response.json()
-        refund_tran_ref = json_response.get("tran_ref")
-        refund_transaction.tran_ref = refund_tran_ref
-        refund_transaction.success = True
-        refund_transaction.pending = False
-        refund_transaction.data = json_response
-        refund_transaction.reservation = reservation
-        refund_transaction.save()
-        return _status, {"message": "refunded successfuly"}
-    
+            refund_transaction.data = json_response
+            refund_transaction.reservation = reservation
+            refund_transaction.save()
+            return _status, {"message": "refunded successfuly"}
+        else: 
+            payment_method = reservation.payment_method
+            _status = "Failed"
+            return _status, {"message": f"Reservations with payment method {payment_method} should be refunded by the operation"}
+        
 
 class PaymentResultSerializer(serializers.Serializer):
     response_status = serializers.CharField()

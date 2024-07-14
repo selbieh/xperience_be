@@ -18,6 +18,7 @@ class Transaction(TimeStampedModel):
     is_refund = models.BooleanField(default=False)
     vat = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    wallet = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return f"transaction {self.id}"
