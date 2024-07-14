@@ -40,7 +40,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
         return ReservationSerializer
 
     def get_permissions(self):
-        if self.request.method in ['GET', 'POST']:
+        if self.request.method in ['GET', 'POST', 'PATCH']:
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAdminUser]

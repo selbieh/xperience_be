@@ -1,6 +1,6 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .serializers import PaySerializer, CallBackSerializer, TransactionSerializer
+from .serializers import PaySerializer, CallBackSerializer, TransactionSerializer, RefundSerializer
 from rest_framework.decorators import action
 from rest_framework import viewsets, status
 from payment.models import Transaction
@@ -35,6 +35,27 @@ class PaymentViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response()
+    
+    @action(detail=False, methods=["POST"])
+    def refund(self, request):
+        data = request.data
+        serializer = RefundSerializer(data=data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        _status, resposne = serializer.save()
+        if not _status:
+            return Response({"message": resposne}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(resposne)
+
+    @action(detail=False, methods=["POST"], url_path="refund-check")
+    def refund_check(self, request):
+        data = request.data
+        serializer = RefundSerializer(data=data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        _status, resposne = serializer.save(commit=False)
+        if not _status:
+            return Response({"message": resposne}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(resposne)
+
 
 
 class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
