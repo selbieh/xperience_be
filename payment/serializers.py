@@ -86,12 +86,22 @@ class RefundSerializer(serializers.Serializer):
 
         if reservation.status == "REFUNDED":
             raise serializers.ValidationError("This reservation is already refunded")
-        if reservation.status != "CANCELLED":
-            raise serializers.ValidationError("You Shoud Cancel the Reservation first to Refund it")      
+        
+        # Check if the reservation is valid to be canceled
+        now = timezone.now()
+
+        for hotel_res in hotel_reservations:
+            if hotel_res.check_in_date <= now.date() + timedelta(days=1):
+                raise serializers.ValidationError("Hotel reservations must be canceled at least a day before check-in")
+
+        for car_res in car_reservations:
+            if car_res.pickup_time <= now + timedelta(hours=3):
+                raise serializers.ValidationError("Car reservations must be canceled at least 3 hours before pickup time")
+
         if not commit:
             return True, {"refund_amount": refund_amount, "cancellation_fee": cancellation_fee or refund_fee}
 
-        if refund_method == 'WALLET' and reservation.payment_method in ["CREDIT_CARD", "WALLET"] and reservation.status == "CANCELLED":
+        if refund_method == 'WALLET' and reservation.payment_method in ["CREDIT_CARD", "WALLET"] and reservation.status == "PAID":
             # Perform wallet refund
             user.wallet += refund_amount
             user.save()
@@ -108,7 +118,7 @@ class RefundSerializer(serializers.Serializer):
             return True, {"message": "Refunded successfully to wallet"}
         
         
-        if refund_method == 'POINTS' and reservation.payment_method == "POINTS" and reservation.status == "CANCELLED":
+        if refund_method == 'POINTS' and reservation.payment_method == "POINTS" and reservation.status == "PAID":
             # Perform wallet refund
             car_reservations = reservation.car_reservations.all()
             hotel_reservations = reservation.hotel_reservations.all()
@@ -122,7 +132,7 @@ class RefundSerializer(serializers.Serializer):
             return True, {"message": "Refunded successfully to your points"}
 
 
-        if refund_method == 'CREDIT_CARD' and reservation.payment_method == "CREDIT_CARD" and reservation.status == "CANCELLED":
+        if refund_method == 'CREDIT_CARD' and reservation.payment_method == "CREDIT_CARD" and reservation.status == 'PAID':
             transaction = reservation.transactions.filter(success=True, is_refund=False).last()
             refund_transaction = Transaction.objects.create(
                 user=user,
@@ -150,6 +160,24 @@ class RefundSerializer(serializers.Serializer):
             refund_transaction.reservation = reservation
             refund_transaction.save()
             return _status, {"message": "refunded successfuly"}
+        
+        if reservation.payment_method == "CASH_ON_DELIVERY" or reservation.payment_method == "CAR_POS":
+            if reservation.status == 'PAID':
+                if refund_method == "WALLET":
+                    user.wallet += refund_amount
+                    user.save()
+                    reservation.status = "REFUNDED"
+                    reservation.save()
+                    raise serializers.ValidationError("Refunded successfully to wallet")
+                else:
+                    raise serializers.ValidationError("Your reservation will be refunded by the operation service")
+
+            if reservation.status != "PAID":
+                reservation.status = "CANCELLED"
+                reservation.save()
+                raise serializers.ValidationError("Your reservation has been cancelled")
+
+
         else: 
             payment_method = reservation.payment_method
             _status = "Failed"

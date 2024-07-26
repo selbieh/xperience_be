@@ -88,8 +88,6 @@ class ReservationSerializer(serializers.ModelSerializer):
             total_points_price = 0
 
             with transaction.atomic():
-                reservation = Reservation.objects.create(**validated_data)
-
                 # Create Car Reservations
                 for car_reservation_data in car_reservations_data:
                     options_data = car_reservation_data.pop('options', [])
@@ -143,6 +141,8 @@ class ReservationSerializer(serializers.ModelSerializer):
                     hotel_reservation.final_price = total_price
                     hotel_reservation.final_points_price = total_points_price
                     hotel_reservation.save()
+                
+                reservation = Reservation.objects.create(**validated_data)
 
                 # Handle payment method
                 if payment_method == 'CREDIT_CARD':
