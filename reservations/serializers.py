@@ -211,7 +211,7 @@ class ReservationSerializer(serializers.ModelSerializer):
                 for hotel_reservation_data in hotel_reservations_data:
                     options_data = hotel_reservation_data.pop('options', [])
                     hotel_service = hotel_reservation_data.get('hotel_service')
-                    
+
                     # Check if the reservation dates are within the available dates
                     check_in_date = hotel_reservation_data.get('check_in_date')
                     check_out_date = hotel_reservation_data.get('check_out_date')
@@ -244,21 +244,21 @@ class ReservationSerializer(serializers.ModelSerializer):
                     hotel_reservation.save()
                 
 
-            # Apply promocode if provided
-            discount = 0
-            if promocode_code:
-                try:
-                    promocode = Promocode.objects.get(code=promocode_code, is_active=True)
-                    if promocode.expiration_date and promocode.expiration_date < timezone.now():
-                        raise serializers.ValidationError("Promocode has expired.")
-                    if promocode.discount_type == 'PERCENTAGE':
-                        discount = total_price * (promocode.discount_value / 100)
-                    elif promocode.discount_type == 'FIXED':
-                        discount = promocode.discount_value
-                    validated_data['promocode'] = promocode
-                except Promocode.DoesNotExist:
-                    raise serializers.ValidationError("Invalid promocode.")
-                total_price -= discount
+                # Apply promocode if provided
+                discount = 0
+                if promocode_code:
+                    try:
+                        promocode = Promocode.objects.get(code=promocode_code, is_active=True)
+                        if promocode.expiration_date and promocode.expiration_date < timezone.now():
+                            raise serializers.ValidationError("Promocode has expired.")
+                        if promocode.discount_type == 'PERCENTAGE':
+                            discount = total_price * (promocode.discount_value / 100)
+                        elif promocode.discount_type == 'FIXED':
+                            discount = promocode.discount_value
+                        validated_data['promocode'] = promocode
+                    except Promocode.DoesNotExist:
+                        raise serializers.ValidationError("Invalid promocode.")
+                    total_price -= discount
 
                 # Handle payment method
                 if payment_method == 'CREDIT_CARD':
