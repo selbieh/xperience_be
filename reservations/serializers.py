@@ -13,11 +13,12 @@ from django.utils import timezone
 
 class CarReservationOptionSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
-    free = serializers.SerializerMethodField()
+    max_free = serializers.SerializerMethodField()
+    points_price = serializers.SerializerMethodField()
 
     class Meta:
         model = CarReservationOption
-        fields = ['service_option', 'quantity', 'price', 'free']
+        fields = ['service_option', 'quantity', 'price', 'max_free', 'points_price']
 
     def get_price(self, obj):
         service_option = obj.service_option
@@ -26,9 +27,13 @@ class CarReservationOptionSerializer(serializers.ModelSerializer):
             return (quantity - service_option.max_free) * service_option.price
         return 0
     
-    def get_free(self, obj):
+    def get_max_free(self, obj):
         service_option = obj.service_option
         return service_option.max_free
+    
+    def get_points_price(self, obj):
+        service_option = obj.service_option
+        return service_option.points_price
 class CarReservationSerializer(serializers.ModelSerializer):
     options = CarReservationOptionSerializer(many=True)
     car_service = serializers.SerializerMethodField()
@@ -52,9 +57,11 @@ class CarReservationSerializer(serializers.ModelSerializer):
 
 class HotelReservationOptionSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
+    max_free = serializers.SerializerMethodField()
+    points_price = serializers.SerializerMethodField()
     class Meta:
         model = HotelReservationOption
-        fields = ['service_option', 'quantity', 'price']
+        fields = ['service_option', 'quantity', 'price', "max_free", "points_price"]
 
     def get_price(self, obj):
         service_option = obj.service_option
@@ -62,6 +69,14 @@ class HotelReservationOptionSerializer(serializers.ModelSerializer):
         if quantity > service_option.max_free:
             return (quantity - service_option.max_free) * service_option.price
         return 0
+
+    def get_max_free(self, obj):
+        service_option = obj.service_option
+        return service_option.max_free
+    
+    def get_points_price(self, obj):
+        service_option = obj.service_option
+        return service_option.points_price
 
 class HotelReservationSerializer(serializers.ModelSerializer):
     options = HotelReservationOptionSerializer(many=True)
@@ -195,6 +210,15 @@ class ReservationSerializer(serializers.ModelSerializer):
                 # Create Hotel Reservations
                 for hotel_reservation_data in hotel_reservations_data:
                     options_data = hotel_reservation_data.pop('options', [])
+                    hotel_service = hotel_reservation_data.get('hotel_service')
+                    
+                    # Check if the reservation dates are within the available dates
+                    check_in_date = hotel_reservation_data.get('check_in_date')
+                    check_out_date = hotel_reservation_data.get('check_out_date')
+                    if (hotel_service.availability_start and check_in_date < hotel_service.availability_start) or \
+                    (hotel_service.availability_end and check_out_date > hotel_service.availability_end):
+                        raise serializers.ValidationError("The reservation dates are outside the available dates for this hotel service.")
+                    
                     hotel_reservation = HotelReservation.objects.create(reservation=reservation, **hotel_reservation_data)
                     
                     check_in_date = hotel_reservation.check_in_date
