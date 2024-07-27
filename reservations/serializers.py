@@ -3,17 +3,27 @@ from django.db import transaction
 from users.models import User
 from .models import (
     Reservation, CarReservation, HotelReservation,
-    CarReservationOption, HotelReservationOption, ServiceOption, SubscriptionOption
+    CarReservationOption, HotelReservationOption, ServiceOption, SubscriptionOption, Promocode
 )
 from users.serializers import UserProfileSerializer
 from datetime import timedelta
 from services.serializers import CarServiceMinimalSerializer, HotelServiceMinimalSerializer
 from services.models import CarService, HotelService
+from django.utils import timezone
 
 class CarReservationOptionSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+
     class Meta:
         model = CarReservationOption
-        fields = ['service_option', 'quantity']
+        fields = ['service_option', 'quantity', 'price']
+
+    def get_price(self, obj):
+        service_option = obj.service_option
+        quantity = obj.quantity
+        if quantity > service_option.max_free:
+            return (quantity - service_option.max_free) * service_option.price
+        return 0
 
 class CarReservationSerializer(serializers.ModelSerializer):
     options = CarReservationOptionSerializer(many=True)
@@ -37,9 +47,17 @@ class CarReservationSerializer(serializers.ModelSerializer):
         read_only_fields=["final_price"]
 
 class HotelReservationOptionSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
     class Meta:
         model = HotelReservationOption
-        fields = ['service_option', 'quantity']
+        fields = ['service_option', 'quantity', 'price']
+
+    def get_price(self, obj):
+        service_option = obj.service_option
+        quantity = obj.quantity
+        if quantity > service_option.max_free:
+            return (quantity - service_option.max_free) * service_option.price
+        return 0
 
 class HotelReservationSerializer(serializers.ModelSerializer):
     options = HotelReservationOptionSerializer(many=True)
@@ -65,10 +83,50 @@ class ReservationSerializer(serializers.ModelSerializer):
     hotel_reservations = HotelReservationSerializer(many=True, required=False)
     created_by = UserProfileSerializer(read_only=True)
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    promocode = serializers.CharField(required=False, allow_blank=True)
+    discount = serializers.SerializerMethodField()
+    final_reservation_price = serializers.SerializerMethodField()
+    final_reservation_price = serializers.SerializerMethodField()
+    total_points_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Reservation
-        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method']
+        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method', 'promocode', 'discount', "final_reservation_price", "total_points_price"]
+
+    def get_discount(self, obj):
+        discount = 0
+        if obj.promocode:
+            if obj.promocode.discount_type == 'PERCENTAGE':
+                discount = obj.total_price * (obj.promocode.discount_value / 100)
+            elif obj.promocode.discount_type == 'FIXED':
+                discount = obj.promocode.discount_value
+            else: 
+                discount=0
+        return discount    
+    
+    def get_final_reservation_price(self, obj):
+        discount = self.get_discount(obj)
+        return self.get_total_price(obj) - discount
+
+    def get_total_price(self, obj):
+        total_price = 0
+        car_reservations = obj.car_reservations.all()
+        hotel_reservations = obj.hotel_reservations.all()
+        for cr in car_reservations:
+            total_price += cr.final_price or 0
+        for hr in hotel_reservations:
+            total_price += hr.final_price or 0
+        return total_price
+
+    def get_total_points_price(self, obj):
+        total_points_price = 0
+        car_reservations = obj.car_reservations.all()
+        hotel_reservations = obj.hotel_reservations.all()
+        for cr in car_reservations:
+            total_points_price += cr.final_points_price or 0
+        for hr in hotel_reservations:
+            total_points_price += hr.final_points_price or 0
+        return total_points_price
 
     def validate(self, data):
         if self.instance is None:
@@ -86,9 +144,24 @@ class ReservationSerializer(serializers.ModelSerializer):
             payment_method = validated_data.get('payment_method')
             total_price = 0
             total_points_price = 0
+            promocode_code = validated_data.pop('promocode', None)
 
+            promocode = None
+            if promocode_code:
+                try:
+                    promocode = Promocode.objects.get(code=promocode_code, is_active=True)
+                    if promocode.expiration_date and promocode.expiration_date < timezone.now():
+                        raise serializers.ValidationError("Promocode has expired.")
+                except Promocode.DoesNotExist:
+                    raise serializers.ValidationError("Invalid promocode.")
+                
             with transaction.atomic():
                 # Create Car Reservations
+                reservation = Reservation.objects.create(**validated_data)
+                if promocode:
+                    reservation.promocode = promocode
+                    reservation.save()
+
                 for car_reservation_data in car_reservations_data:
                     options_data = car_reservation_data.pop('options', [])
                     subscription_option = car_reservation_data.get('subscription_option')
@@ -142,7 +215,22 @@ class ReservationSerializer(serializers.ModelSerializer):
                     hotel_reservation.final_points_price = total_points_price
                     hotel_reservation.save()
                 
-                reservation = Reservation.objects.create(**validated_data)
+
+            # Apply promocode if provided
+            discount = 0
+            if promocode_code:
+                try:
+                    promocode = Promocode.objects.get(code=promocode_code, is_active=True)
+                    if promocode.expiration_date and promocode.expiration_date < timezone.now():
+                        raise serializers.ValidationError("Promocode has expired.")
+                    if promocode.discount_type == 'PERCENTAGE':
+                        discount = total_price * (promocode.discount_value / 100)
+                    elif promocode.discount_type == 'FIXED':
+                        discount = promocode.discount_value
+                    validated_data['promocode'] = promocode
+                except Promocode.DoesNotExist:
+                    raise serializers.ValidationError("Invalid promocode.")
+                total_price -= discount
 
                 # Handle payment method
                 if payment_method == 'CREDIT_CARD':
@@ -166,13 +254,19 @@ class ReservationSerializer(serializers.ModelSerializer):
 
             return reservation
 
+class PromocodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Promocode
+        fields = ['id', 'code', 'discount_type', 'discount_value', 'is_active', 'expiration_date']
 
 class ReservationDetailSerializer(serializers.ModelSerializer):
     car_reservations = CarReservationSerializer(many=True, read_only=True)
     hotel_reservations = HotelReservationSerializer(many=True, read_only=True)
     created_by = UserProfileSerializer(read_only=True)
     user = UserProfileSerializer(read_only=True)  # Include user details
+    promocode = PromocodeSerializer()
 
     class Meta:
         model = Reservation
-        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method']
+        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method', 'promocode']
+

@@ -43,6 +43,16 @@ class PaySerializer(serializers.Serializer):
         total_amount = sum([cr.final_price for cr in car_reservations if cr.final_price]) + \
                        sum([hr.final_price for hr in hotel_reservations if hr.final_price])
 
+        # Apply promo code discount if available
+        discount = 0
+        if reservation.promocode:
+            promocode = reservation.promocode
+            if promocode.discount_type == 'PERCENTAGE':
+                discount = total_amount * (promocode.discount_value / 100)
+            elif promocode.discount_type == 'FIXED':
+                discount = promocode.discount_value
+
+        total_amount -= discount
         if total_amount <= 0:
             raise serializers.ValidationError("Total amount must be greater than zero")
 

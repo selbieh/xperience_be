@@ -3,6 +3,23 @@ from base.models import AbstractBaseModel
 from django.conf import settings
 from services.models import ServiceOption, HotelService, CarService, SubscriptionOption
 
+
+class Promocode(models.Model):
+    DISCOUNT_TYPE_CHOICES = [
+        ('PERCENTAGE', 'Percentage'),
+        ('FIXED', 'Fixed Amount')
+    ]
+
+    code = models.CharField(max_length=50, unique=True)
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPE_CHOICES)
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    expiration_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.code
+    
+    
 class Reservation(AbstractBaseModel):
     STATUS_CHOICES = [
         ('WAITING_FOR_PAYMENT', 'Waiting for Payment'),
@@ -26,6 +43,7 @@ class Reservation(AbstractBaseModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reservations')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_reservations')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='CASH_ON_DELIVERY')
+    promocode = models.ForeignKey(Promocode, null=True, blank=True, on_delete=models.SET_NULL)
 
 
 class CarReservation(AbstractBaseModel):
@@ -68,8 +86,4 @@ class HotelReservationOption(AbstractBaseModel):
     hotel_reservation = models.ForeignKey(HotelReservation, on_delete=models.CASCADE, related_name='options')
     service_option = models.ForeignKey(ServiceOption, on_delete=models.CASCADE, related_name='hotel_reservation_options')
     quantity = models.IntegerField()
-
-
-
-
 

@@ -1,8 +1,8 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.db import transaction
-from .models import Reservation
-from .serializers import ReservationSerializer, ReservationDetailSerializer
+from .models import Reservation, Promocode
+from .serializers import ReservationSerializer, ReservationDetailSerializer, PromocodeSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -121,3 +121,15 @@ class FilterReservationViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class PromocodeViewSet(viewsets.ModelViewSet):
+    queryset = Promocode.objects.all()
+    serializer_class = PromocodeSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
