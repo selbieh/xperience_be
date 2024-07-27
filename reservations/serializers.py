@@ -13,10 +13,11 @@ from django.utils import timezone
 
 class CarReservationOptionSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
+    free = serializers.SerializerMethodField()
 
     class Meta:
         model = CarReservationOption
-        fields = ['service_option', 'quantity', 'price']
+        fields = ['service_option', 'quantity', 'price', 'free']
 
     def get_price(self, obj):
         service_option = obj.service_option
@@ -24,7 +25,10 @@ class CarReservationOptionSerializer(serializers.ModelSerializer):
         if quantity > service_option.max_free:
             return (quantity - service_option.max_free) * service_option.price
         return 0
-
+    
+    def get_free(self, obj):
+        service_option = obj.service_option
+        return service_option.max_free
 class CarReservationSerializer(serializers.ModelSerializer):
     options = CarReservationOptionSerializer(many=True)
     car_service = serializers.SerializerMethodField()
