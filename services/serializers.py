@@ -21,12 +21,12 @@ class SubscriptionOptionSerializer(serializers.ModelSerializer):
     car_service = CarServiceMinimalSerializer()
     class Meta:
         model = SubscriptionOption
-        fields = ['id', 'duration_hours', 'price', 'car_service', "type", "points"]
+        fields = ['id', 'duration_hours', 'price', 'car_service', "type", "points", "points_price"]
 
 class SubscriptionOptionWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubscriptionOption
-        fields = ['id', 'duration_hours', 'price', 'car_service', "type", "points"]
+        fields = ['id', 'duration_hours', 'price', 'car_service', "type", "points", "points_price"]
 
 
 class CarServiceListSerializer(serializers.ModelSerializer):
@@ -77,7 +77,7 @@ class HotelServiceListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image', 'points']
+        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'image', 'points', 'points_price']
 
 
 class HotelServiceFeatureSerializer(serializers.ModelSerializer):
@@ -96,7 +96,7 @@ class HotelServiceDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HotelService
-        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images', 'address', 'location_lat', 'location_long', 'location_url', 'points']
+        fields = ['id', 'name', 'name_ar', 'name_en', 'description', 'view', 'number_of_rooms', 'number_of_beds', 'day_price', 'features', 'images', 'address', 'location_lat', 'location_long', 'location_url', 'points', 'points_price']
         read_only_fields = ['name']
 
     def update(self, instance, validated_data):
