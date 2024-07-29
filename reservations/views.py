@@ -253,7 +253,7 @@ class CalculateReservationView(APIView):
             total_points_price += hotel_final_points_price
             hotel_reservations.append({
                 "hotel_service": hotel_service.id,
-                "hotel_service_price": hotel_service.price,
+                "hotel_service_price": hotel_service.day_price,
                 "check_in_date": hotel_reservation_data.get('check_in_date'),
                 "check_out_date": hotel_reservation_data.get('check_out_date'),
                 "extras": hotel_reservation_data.get('extras'),
