@@ -112,21 +112,6 @@ class ReservationSerializer(serializers.ModelSerializer):
         model = Reservation
         fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method', 'promocode', 'discount', "final_reservation_price", "total_points_price"]
 
-    def get_discount(self, obj):
-        discount = 0
-        if obj.promocode:
-            if obj.promocode.discount_type == 'PERCENTAGE':
-                discount = obj.total_price * (obj.promocode.discount_value / 100)
-            elif obj.promocode.discount_type == 'FIXED':
-                discount = obj.promocode.discount_value
-            else: 
-                discount=0
-        return discount    
-    
-    def get_final_reservation_price(self, obj):
-        discount = self.get_discount(obj)
-        return self.get_total_price(obj) - discount
-
     def get_total_price(self, obj):
         total_price = 0
         car_reservations = obj.car_reservations.all()
@@ -136,6 +121,23 @@ class ReservationSerializer(serializers.ModelSerializer):
         for hr in hotel_reservations:
             total_price += hr.final_price or 0
         return total_price
+    
+    def get_discount(self, obj):
+        discount = 0
+        if obj.promocode:
+            total_price = self.get_total_price(obj)
+            if obj.promocode.discount_type == 'PERCENTAGE':
+                discount = total_price * (obj.promocode.discount_value / 100)
+            elif obj.promocode.discount_type == 'FIXED':
+                discount = obj.promocode.discount_value
+            else: 
+                discount=0
+        return discount    
+    
+    def get_final_reservation_price(self, obj):
+        total_price = self.get_total_price(obj)
+        discount = self.get_discount(obj)
+        return total_price - discount
 
     def get_total_points_price(self, obj):
         total_points_price = 0

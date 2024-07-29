@@ -193,6 +193,7 @@ class CalculateReservationView(APIView):
                     car_final_points_price += (quantity - service_option.max_free) * service_option.points_price if service_option.points_price else 0
                 car_options.append({
                     "service_option": service_option.id,
+                    "service_option_name": service_option.name,
                     "quantity": quantity,
                     "price": service_option.price,
                     "max_free": service_option.max_free,
@@ -211,6 +212,7 @@ class CalculateReservationView(APIView):
                 "extras": car_reservation_data.get('extras'),
                 "final_price": car_final_price,
                 "subscription_option": subscription_option.id if subscription_option else None,
+                "subscription_option_price": subscription_option.price if subscription_option else None,
                 "options": car_options
             })
 
@@ -240,6 +242,7 @@ class CalculateReservationView(APIView):
                     hotel_final_points_price += (quantity - service_option.max_free) * service_option.points_price if service_option.points_price else 0
                 hotel_options.append({
                     "service_option": service_option.id,
+                    "service_option_name": service_option.name,
                     "quantity": quantity,
                     "price": service_option.price,
                     "max_free": service_option.max_free,
@@ -250,6 +253,7 @@ class CalculateReservationView(APIView):
             total_points_price += hotel_final_points_price
             hotel_reservations.append({
                 "hotel_service": hotel_service.id,
+                "hotel_service_price": hotel_service.price,
                 "check_in_date": hotel_reservation_data.get('check_in_date'),
                 "check_out_date": hotel_reservation_data.get('check_out_date'),
                 "extras": hotel_reservation_data.get('extras'),
@@ -266,7 +270,6 @@ class CalculateReservationView(APIView):
             total_price -= discount
 
         response_data = {
-            "user": user.id,
             "car_reservations": car_reservations,
             "hotel_reservations": hotel_reservations,
             "status": "WAITING_FOR_PAYMENT" if payment_method == 'CREDIT_CARD' else "PENDING",
