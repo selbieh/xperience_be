@@ -209,6 +209,7 @@ class ReservationSerializer(serializers.ModelSerializer):
                     car_reservation.final_points_price = total_points_price
                     car_reservation.save()
 
+                total_price=0
                 # Create Hotel Reservations
                 for hotel_reservation_data in hotel_reservations_data:
                     options_data = hotel_reservation_data.pop('options', [])
