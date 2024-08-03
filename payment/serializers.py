@@ -5,7 +5,7 @@ from django.db import transaction as t
 from payment.gateways.hmac_validation import hmac_validate
 import logging
 from users.serializers import UserProfileSerializer
-from reservations.models import Reservation
+from reservations.models import Reservation, Promocode
 from rest_framework import serializers
 from .models import Transaction, Reservation
 from django.utils import timezone
@@ -95,7 +95,7 @@ class RefundSerializer(serializers.Serializer):
 
         if reservation.promocode:
             try:
-                promocode = self.get_promocode_value(reservation)
+                promocode = Promocode.objects.get(id=reservation.promocode)
                 if promocode.discount_type == 'PERCENTAGE':
                     discount = paid_price * (promocode.discount_value / 100)
                 elif promocode.discount_type == 'FIXED':
