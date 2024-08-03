@@ -260,8 +260,10 @@ class ReservationSerializer(serializers.ModelSerializer):
                             raise serializers.ValidationError("Promocode has expired.")
                         if promocode.discount_type == 'PERCENTAGE':
                             discount = total_price * (promocode.discount_value / 100)
+                            reservation.promocode=promocode
                         elif promocode.discount_type == 'FIXED':
                             discount = promocode.discount_value
+                            reservation.promocode = promocode
                         validated_data['promocode'] = promocode
                     except Promocode.DoesNotExist:
                         raise serializers.ValidationError("Invalid promocode.")
