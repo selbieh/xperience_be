@@ -38,7 +38,7 @@ class UserProfileViewSet(ModelViewSet):
     
     def destroy(self, request, *args, **kwargs):
         # Custom response for delete action
-        return Response(status=status.HTTP_200_OK)
+        return Response({"message": "Your account has been deleted."}, status=status.HTTP_200_OK)
 
 
 # class CustomObtainAuthToken(APIView):
