@@ -211,6 +211,7 @@ class ReservationSerializer(serializers.ModelSerializer):
                     car_reservation.save()
 
                 total_price=0
+                total_points_price=0
                 # Create Hotel Reservations
                 for hotel_reservation_data in hotel_reservations_data:
                     options_data = hotel_reservation_data.pop('options', [])
@@ -270,13 +271,13 @@ class ReservationSerializer(serializers.ModelSerializer):
                 elif payment_method == 'WALLET':
                     if user.wallet < total_price:
                         raise serializers.ValidationError("You don't have enogh wallet balance.")
-                    user.wallet -= total_price
+                    user.wallet -= car_reservation.final_price + hotel_reservation.final_price
                     user.save()
                     reservation.status = 'PAID'
                 elif payment_method == 'POINTS':
-                    if user.points < total_points_price:
+                    if user.points < hotel_reservation.final_points_price + car_reservation.final_points_price :
                         raise serializers.ValidationError("You don't have enogh points.")
-                    user.points -= total_points_price
+                    user.points -= hotel_reservation.final_points_price + car_reservation.final_points_price
                     user.save()
                     reservation.status = 'PAID'
                 else:  # For POS and Cash on Delivery
