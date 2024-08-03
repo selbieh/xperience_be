@@ -326,14 +326,68 @@ class PromocodeSerializer(serializers.ModelSerializer):
         model = Promocode
         fields = ['id', 'code', 'discount_type', 'discount_value', 'is_active', 'expiration_date']
 
+
+# class ReservationDetailSerializer(serializers.ModelSerializer):
+#     car_reservations = CarReservationSerializer(many=True, read_only=True)
+#     hotel_reservations = HotelReservationSerializer(many=True, read_only=True)
+#     created_by = UserProfileSerializer(read_only=True)
+#     user = UserProfileSerializer(read_only=True)  # Include user details
+#     promocode = PromocodeSerializer()
+
+#     class Meta:
+#         model = Reservation
+#         fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method', 'promocode']
+
+
 class ReservationDetailSerializer(serializers.ModelSerializer):
     car_reservations = CarReservationSerializer(many=True, read_only=True)
     hotel_reservations = HotelReservationSerializer(many=True, read_only=True)
     created_by = UserProfileSerializer(read_only=True)
     user = UserProfileSerializer(read_only=True)  # Include user details
     promocode = PromocodeSerializer()
+    discount = serializers.SerializerMethodField()
+    final_reservation_price = serializers.SerializerMethodField()
+    total_points_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Reservation
-        fields = ['id', 'user', 'car_reservations', 'hotel_reservations', 'created_by', 'status', 'created_at', 'payment_method', 'promocode']
+        fields = [
+            'id', 'user', 'car_reservations', 'hotel_reservations', 
+            'created_by', 'status', 'created_at', 'payment_method', 
+            'promocode', 'discount', 'final_reservation_price', 'total_points_price'
+        ]
 
+    def get_total_price(self, obj):
+        total_price = 0
+        car_reservations = obj.car_reservations.all()
+        hotel_reservations = obj.hotel_reservations.all()
+        for cr in car_reservations:
+            total_price += cr.final_price or 0
+        for hr in hotel_reservations:
+            total_price += hr.final_price or 0
+        return total_price
+
+    def get_discount(self, obj):
+        discount = 0
+        if obj.promocode:
+            total_price = self.get_total_price(obj)
+            if obj.promocode.discount_type == 'PERCENTAGE':
+                discount = total_price * (obj.promocode.discount_value / 100)
+            elif obj.promocode.discount_type == 'FIXED':
+                discount = obj.promocode.discount_value
+        return discount
+
+    def get_final_reservation_price(self, obj):
+        total_price = self.get_total_price(obj)
+        discount = self.get_discount(obj)
+        return total_price - discount
+
+    def get_total_points_price(self, obj):
+        total_points_price = 0
+        car_reservations = obj.car_reservations.all()
+        hotel_reservations = obj.hotel_reservations.all()
+        for cr in car_reservations:
+            total_points_price += cr.final_points_price or 0
+        for hr in hotel_reservations:
+            total_points_price += hr.final_points_price or 0
+        return total_points_price
