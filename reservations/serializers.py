@@ -263,7 +263,24 @@ class ReservationSerializer(serializers.ModelSerializer):
                         validated_data['promocode'] = promocode
                     except Promocode.DoesNotExist:
                         raise serializers.ValidationError("Invalid promocode.")
+
+
+                total_price=0
+                if car_reservation:
+                    total_price += car_reservation.final_price
+                if hotel_reservation:
+                    total_price += hotel_reservation.final_price
+                if promocode:
                     total_price -= discount
+
+
+                total_points_price=0
+                if car_reservation:
+                    total_points_price += car_reservation.final_points_price
+                if hotel_reservation:
+                    total_points_price += hotel_reservation.final_points_price
+                if promocode:
+                    total_points_price
 
                 # Handle payment method
                 if payment_method == 'CREDIT_CARD':
@@ -271,13 +288,13 @@ class ReservationSerializer(serializers.ModelSerializer):
                 elif payment_method == 'WALLET':
                     if user.wallet < total_price:
                         raise serializers.ValidationError("You don't have enogh wallet balance.")
-                    user.wallet -= car_reservation.final_price + hotel_reservation.final_price
+                    user.wallet -= total_price
                     user.save()
                     reservation.status = 'PAID'
                 elif payment_method == 'POINTS':
-                    if user.points < hotel_reservation.final_points_price + car_reservation.final_points_price :
+                    if user.points < total_points_price:
                         raise serializers.ValidationError("You don't have enogh points.")
-                    user.points -= hotel_reservation.final_points_price + car_reservation.final_points_price
+                    user.points -= total_points_price
                     user.save()
                     reservation.status = 'PAID'
                 else:  # For POS and Cash on Delivery
