@@ -167,6 +167,8 @@ class ReservationSerializer(serializers.ModelSerializer):
             total_price = 0
             total_points_price = 0
             promocode_code = validated_data.pop('promocode', None)
+            car_reservation = None
+            hotel_reservation = None
 
             promocode = None
             if promocode_code:
