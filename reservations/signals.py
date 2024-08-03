@@ -7,89 +7,93 @@ from base.models import UserNotification, AdminNotification
 
 
 
-@receiver(post_save, sender=Reservation)
-def message_handler(sender, instance, created, **kwargs):
-    status = instance.status
-    if status == 'WAITING_FOR_PAYMENT':
-        title = 'Reservation Updates'
-        body= 'Your Reservation is Waiting for Payment'
-        body1=f'Reservation of user {instance.user.name} is Waiting for Payment'
+# Helper function for sending notifications
+def send_reservation_notifications(reservation, created):
+    current_status = reservation.status
+    title, body, body1 = '', '', ''
 
-    elif status == 'CONFIRMED':
+    if current_status == 'WAITING_FOR_PAYMENT':
         title = 'Reservation Updates'
-        body= 'Your Reservation has been Confirmed'
-        body1=f'Reservation of user {instance.user.name} has been Confirmed'
+        body = 'Your Reservation is Waiting for Payment'
+        body1 = f'Reservation of user {reservation.user.name} is Waiting for Payment'
 
-    elif status == 'CANCELLED':
+    elif current_status == 'CONFIRMED':
         title = 'Reservation Updates'
-        body= 'Your Reservation has been Cancelled'
-        body1=f'Reservation of user {instance.user.name} has been Cancelled'
+        body = 'Your Reservation has been Confirmed'
+        body1 = f'Reservation of user {reservation.user.name} has been Confirmed'
 
-    elif status == 'COMPLETED':
+    elif current_status == 'CANCELLED':
+        title = 'Reservation Updates'
+        body = 'Your Reservation has been Cancelled'
+        body1 = f'Reservation of user {reservation.user.name} has been Cancelled'
+
+    elif current_status == 'COMPLETED':
         title = 'Reservation Updates'
         body = 'You have earned Points'
-        body1 = f'User {instance.user.name} has earned Points'
+        body1 = f'User {reservation.user.name} has earned Points'
         total_points = 0
 
-        hotel_reservations = instance.hotel_reservations.all()
+        hotel_reservations = reservation.hotel_reservations.all()
         for hotel_reservation in hotel_reservations:
             if hotel_reservation.hotel_service.points:
                 total_points += hotel_reservation.hotel_service.points
 
-        car_reservations = instance.car_reservations.all()
+        car_reservations = reservation.car_reservations.all()
         for car_reservation in car_reservations:
             if car_reservation.subscription_option and car_reservation.subscription_option.points:
                 total_points += car_reservation.subscription_option.points
 
-        if instance.user.points is None:
-            instance.user.points = 0
+        if reservation.user.points is None:
+            reservation.user.points = 0
 
-        instance.user.points += total_points
-        instance.user.save()
+        reservation.user.points += total_points
+        reservation.user.save()
 
         body = f'You have earned {total_points} Points'
-        body1 = f'User {instance.user.name} has earned {total_points} Points'
+        body1 = f'User {reservation.user.name} has earned {total_points} Points'
 
-    elif status == 'WAITING_FOR_CONFIRMATION':
+    elif current_status == 'WAITING_FOR_CONFIRMATION':
         title = 'Reservation Updates'
-        body= 'Your Reservation is Waiting For Confirmation'
-        body1=f'Reservation of user {instance.user.name} is Waiting for Confirmation'
+        body = 'Your Reservation is Waiting For Confirmation'
+        body1 = f'Reservation of user {reservation.user.name} is Waiting for Confirmation'
 
-    elif status == 'PAID':
+    elif current_status == 'PAID':
         title = 'Reservation Updates'
-        body= 'Your Reservation has been Paid'
-        body1=f'Reservation of user {instance.user.name} has been Paid'
+        body = 'Your Reservation has been Paid'
+        body1 = f'Reservation of user {reservation.user.name} has been Paid'
 
-    elif status == 'REFUNDED':
+    elif current_status == 'REFUNDED':
         title = 'Reservation Updates'
-        body= 'Your Reservation has been Refunded'
-        body1=f'Reservation of user {instance.user.name} has been Refunded'
-
+        body = 'Your Reservation has been Refunded'
+        body1 = f'Reservation of user {reservation.user.name} has been Refunded'
 
     try:
-        register_tokens = FCMDevice.objects.filter(user=instance.user)
+        # Send notifications to the user
+        register_tokens = FCMDevice.objects.filter(user=reservation.user)
         register_tokens.send_message(Message(notification=Notification(
             title=title,
             body=body
         )))
-        
+
+        # Send notifications to the admin
         admin_register_tokens = FCMDevice.objects.filter(user__is_staff=True)
         admin_register_tokens.send_message(Message(notification=Notification(
             title=title,
             body=body1
         )))
 
+        # Create notifications records
         UserNotification.objects.create(
-            user=instance.user,
+            user=reservation.user,
             title=title,
             body=body
         )
 
         AdminNotification.objects.create(
-            user=instance.user,
+            user=reservation.user,
             title=title,
             body=body1,
-            reservation=instance
+            reservation=reservation
         )
     except Exception as e:
-        print(e)
+        print(f"Notification Error: {e}")

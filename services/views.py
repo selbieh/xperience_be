@@ -12,7 +12,7 @@ from .serializers import (
 
 class CarServiceViewSet(viewsets.ModelViewSet):
     filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ['model', 'make', 'type', 'color']
+    search_fields = ['type', 'color']
     filterset_fields = ['model', 'make']
 
     def get_queryset(self):

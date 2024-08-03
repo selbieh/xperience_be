@@ -10,6 +10,7 @@ from datetime import timedelta
 from services.serializers import CarServiceMinimalSerializer, HotelServiceMinimalSerializer
 from services.models import CarService, HotelService
 from django.utils import timezone
+from .signals import send_reservation_notifications
 
 class CarReservationOptionSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
@@ -282,8 +283,21 @@ class ReservationSerializer(serializers.ModelSerializer):
                     reservation.status = 'WAITING_FOR_CONFIRMATION'
 
                 reservation.save()
-
+                send_reservation_notifications(reservation, created=True)
             return reservation
+    
+    def update(self, instance, validated_data):
+        previous_status = instance.status  # Capture the previous status
+
+        # Use the default update behavior
+        updated_instance = super().update(instance, validated_data)
+
+        # Check if the status has changed and send a notification
+        current_status = updated_instance.status
+        if current_status != previous_status:
+            send_reservation_notifications(updated_instance, created=False)
+
+        return updated_instance
 
 class PromocodeSerializer(serializers.ModelSerializer):
     class Meta:
