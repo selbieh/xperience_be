@@ -95,7 +95,7 @@ class RefundSerializer(serializers.Serializer):
 
         if reservation.promocode:
             try:
-                promocode = Promocode.objects.get(id=reservation.promocode)
+                promocode = Promocode.objects.get(id=reservation.promocode.id)
                 if promocode.discount_type == 'PERCENTAGE':
                     discount = paid_price * (promocode.discount_value / 100)
                 elif promocode.discount_type == 'FIXED':
