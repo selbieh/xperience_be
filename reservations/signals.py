@@ -69,7 +69,7 @@ def send_reservation_notifications(reservation, created):
 
     try:
         # Send notifications to the user
-        register_tokens = FCMDevice.objects.filter(user=reservation.user)
+        register_tokens = FCMDevice.objects.filter(user=reservation.user, active=True)
         register_tokens.send_message(Message(notification=Notification(
             title=title,
             body=body
