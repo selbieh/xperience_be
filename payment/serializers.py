@@ -90,6 +90,18 @@ class RefundSerializer(serializers.Serializer):
         hotel_reservations = reservation.hotel_reservations.all()
         paid_price = sum([cr.final_price for cr in car_reservations if cr.final_price]) + \
                                  sum([hr.final_price for hr in hotel_reservations if hr.final_price])
+
+        if reservation.promocode:
+            try:
+                promocode = self.get_promocode_value(reservation)
+                if promocode.discount_type == 'PERCENTAGE':
+                    discount = paid_price * (promocode.discount_value / 100)
+                elif promocode.discount_type == 'FIXED':
+                    discount = promocode.discount_value
+            except:
+                raise serializers.ValidationError("connot be refunded.")
+            paid_price -= discount
+
         refund_amount = paid_price
         cancellation_fee = refund_fee = 0
         refund_method = self.validated_data["refund_method"]
