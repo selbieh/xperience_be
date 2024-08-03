@@ -70,7 +70,6 @@ class PaySerializer(serializers.Serializer):
         json_response = response.json()
         transaction.tran_ref = json_response.get("tran_ref")
         transaction.save(update_fields=["tran_ref", "amount"])
-        send_reservation_notifications(reservation, created=False)
 
         return {
             'redirect_url': json_response.get('redirect_url')
@@ -250,6 +249,7 @@ class CallBackSerializer(serializers.Serializer):
             reservation = transaction.reservation
             reservation.status = "PAID"
             reservation.save()
+            send_reservation_notifications(reservation, created=False)
         transaction.save()
         return transaction
 
