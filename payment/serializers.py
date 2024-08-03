@@ -10,6 +10,7 @@ from rest_framework import serializers
 from .models import Transaction, Reservation
 from django.utils import timezone
 from datetime import timedelta
+from reservations.signals import send_reservation_notifications
 
 class PaySerializer(serializers.Serializer):
     reservation_id = serializers.IntegerField()
@@ -69,6 +70,7 @@ class PaySerializer(serializers.Serializer):
         json_response = response.json()
         transaction.tran_ref = json_response.get("tran_ref")
         transaction.save(update_fields=["tran_ref", "amount"])
+        send_reservation_notifications(reservation, created=False)
 
         return {
             'redirect_url': json_response.get('redirect_url')
@@ -129,6 +131,7 @@ class RefundSerializer(serializers.Serializer):
             user.save()
             reservation.status = "REFUNDED"
             reservation.save()
+            send_reservation_notifications(reservation, created=False)
 
             # Update the existing transaction to mark it as refunded and indicate it's a wallet operation
             if reservation.payment_method == "CREDIT_CARD":
@@ -151,6 +154,7 @@ class RefundSerializer(serializers.Serializer):
             user.save()
             reservation.status = "REFUNDED"
             reservation.save()
+            send_reservation_notifications(reservation, created=False)
             return True, {"message": "Refunded successfully to your points"}
 
 
@@ -181,6 +185,7 @@ class RefundSerializer(serializers.Serializer):
             refund_transaction.data = json_response
             refund_transaction.reservation = reservation
             refund_transaction.save()
+            send_reservation_notifications(reservation, created=False)
             return _status, {"message": "refunded successfuly"}
         
         if reservation.payment_method == "CASH_ON_DELIVERY" or reservation.payment_method == "CAR_POS":
@@ -190,6 +195,7 @@ class RefundSerializer(serializers.Serializer):
                     user.save()
                     reservation.status = "REFUNDED"
                     reservation.save()
+                    send_reservation_notifications(reservation, created=False)
                     raise serializers.ValidationError("Refunded successfully to wallet")
                 else:
                     raise serializers.ValidationError("Your reservation will be refunded by the operation service")
@@ -197,6 +203,7 @@ class RefundSerializer(serializers.Serializer):
             if reservation.status != "PAID":
                 reservation.status = "CANCELLED"
                 reservation.save()
+                send_reservation_notifications(reservation, created=False)
                 raise serializers.ValidationError("Your reservation has been cancelled")
 
 
