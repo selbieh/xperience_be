@@ -4,13 +4,15 @@ from .models import Reservation
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 from base.models import UserNotification, AdminNotification
+import logging
 
-
+logger = logging.getLogger(__name__)
 
 # Helper function for sending notifications
 def send_reservation_notifications(reservation, created):
     current_status = reservation.status
     title, body, body1 = '', '', ''
+    logger.critical(f"first line of send notification for {reservation.id} with status {current_status}")
 
     if current_status == 'WAITING_FOR_PAYMENT':
         title = 'Reservation Updates'
@@ -67,13 +69,17 @@ def send_reservation_notifications(reservation, created):
         body = 'Your Reservation has been Refunded'
         body1 = f'Reservation of user {reservation.user.name} has been Refunded'
 
+
     try:
+        logger.critical(f"Sending notifications for reservation {reservation.id} of user {reservation.user} with status {current_status}")
+
         # Send notifications to the user
         register_tokens = FCMDevice.objects.filter(user=reservation.user)
         register_tokens.send_message(Message(notification=Notification(
             title=title,
             body=body
         )))
+        logger.critical(f"the register tokens: {register_tokens}")
 
         # Send notifications to the admin
         admin_register_tokens = FCMDevice.objects.filter(user__is_staff=True)
@@ -81,6 +87,7 @@ def send_reservation_notifications(reservation, created):
             title=title,
             body=body1
         )))
+        logger.critical(f"the admins register tokens: {admin_register_tokens}")
 
         # Create notifications records
         UserNotification.objects.create(
@@ -95,5 +102,9 @@ def send_reservation_notifications(reservation, created):
             body=body1,
             reservation=reservation
         )
+
+        logger.critical(f"Notifications sent successfully for reservation {reservation.id}")
+
     except Exception as e:
+        logger.critical(f"Notification Error for reservation {reservation.id}: {str(e)}")
         print(f"Notification Error: {e}")

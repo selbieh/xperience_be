@@ -238,3 +238,23 @@ PAYTABS = {
     "PAYTABS_PROFILE": env("PAYTABS_PROFILE", default=""),
     "PAYTABS_AUTH": env("PAYTABS_AUTH", default=""),
 }
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "CRITICAL",
+            "class": "logging.FileHandler",
+            "filename": "general.log",
+        },
+    },
+    "loggers": {
+        "": {
+            "handlers": ["file"],
+            "level": "CRITICAL",
+            "propagate": True,
+        },
+    },
+}
