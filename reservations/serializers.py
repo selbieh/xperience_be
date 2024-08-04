@@ -305,7 +305,7 @@ class ReservationSerializer(serializers.ModelSerializer):
                     reservation.status = 'WAITING_FOR_CONFIRMATION'
 
                 reservation.save()
-                send_reservation_notifications(reservation, created=True)
+                send_reservation_notifications(reservation, created=False)
             return reservation
     
     def update(self, instance, validated_data):

@@ -124,94 +124,99 @@ class RefundSerializer(serializers.Serializer):
         if not commit:
             return True, {"refund_amount": refund_amount, "cancellation_fee": cancellation_fee or refund_fee}
 
-        if refund_method == 'WALLET' and reservation.payment_method in ["CREDIT_CARD", "WALLET"] and reservation.status == "PAID":
-            # Perform wallet refund
-            user.wallet += refund_amount
-            user.save()
-            reservation.status = "REFUNDED"
-            reservation.save()
-            send_reservation_notifications(reservation, created=False)
+        try:
+            with t.atomic():
 
-            # Update the existing transaction to mark it as refunded and indicate it's a wallet operation
-            if reservation.payment_method == "CREDIT_CARD":
-                transaction = reservation.transactions.filter(success=True, is_refund=False).last()
-                transaction.refunded = True
-                transaction.wallet = True
-                transaction.save()
-
-            return True, {"message": "Refunded successfully to wallet"}
-        
-        
-        if refund_method == 'POINTS' and reservation.payment_method == "POINTS" and reservation.status == "PAID":
-            # Perform wallet refund
-            car_reservations = reservation.car_reservations.all()
-            hotel_reservations = reservation.hotel_reservations.all()
-            final_points_price = sum([cr.final_points_price for cr in car_reservations if cr.final_points_price]) + \
-                                 sum([hr.final_points_price for hr in hotel_reservations if hr.final_points_price])
-            
-            user.points += final_points_price
-            user.save()
-            reservation.status = "REFUNDED"
-            reservation.save()
-            send_reservation_notifications(reservation, created=False)
-            return True, {"message": "Refunded successfully to your points"}
-
-
-        if refund_method == 'CREDIT_CARD' and reservation.payment_method == "CREDIT_CARD" and reservation.status == 'PAID':
-            transaction = reservation.transactions.filter(success=True, is_refund=False).last()
-            refund_transaction = Transaction.objects.create(
-                user=user,
-                amount=refund_amount + cancellation_fee,
-                is_refund=True,
-                reservation=reservation,
-            )
-            gateway = PayTabsGateway()
-            _status, response = gateway.refund(
-                amount=float(refund_amount), tran_id=transaction.id, tran_ref=transaction.tran_ref
-            )
-            if not _status:
-                refund_transaction.pending = False
-                return False, response
-            reservation.status = "REFUNDED"
-            transaction.refunded = True
-            reservation.save()
-            transaction.save()
-            json_response = response.json()
-            refund_tran_ref = json_response.get("tran_ref")
-            refund_transaction.tran_ref = refund_tran_ref
-            refund_transaction.success = True
-            refund_transaction.pending = False
-            refund_transaction.data = json_response
-            refund_transaction.reservation = reservation
-            refund_transaction.save()
-            send_reservation_notifications(reservation, created=False)
-            return _status, {"message": "refunded successfuly"}
-        
-        if reservation.payment_method == "CASH_ON_DELIVERY" or reservation.payment_method == "CAR_POS":
-            if reservation.status == 'PAID':
-                if refund_method == "WALLET":
+                if refund_method == 'WALLET' and reservation.payment_method in ["CREDIT_CARD", "WALLET"] and reservation.status == "PAID":
+                    # Perform wallet refund
                     user.wallet += refund_amount
                     user.save()
                     reservation.status = "REFUNDED"
                     reservation.save()
                     send_reservation_notifications(reservation, created=False)
-                    raise serializers.ValidationError("Refunded successfully to wallet")
-                else:
-                    raise serializers.ValidationError("Your reservation will be refunded by the operation service")
 
-            if reservation.status != "PAID":
-                reservation.status = "CANCELLED"
-                reservation.save()
-                send_reservation_notifications(reservation, created=False)
-                raise serializers.ValidationError("Your reservation has been cancelled")
+                    # Update the existing transaction to mark it as refunded and indicate it's a wallet operation
+                    if reservation.payment_method == "CREDIT_CARD":
+                        transaction = reservation.transactions.filter(success=True, is_refund=False).last()
+                        transaction.refunded = True
+                        transaction.wallet = True
+                        transaction.save()
+
+                    return True, {"message": "Refunded successfully to wallet"}
+                
+                
+                if refund_method == 'POINTS' and reservation.payment_method == "POINTS" and reservation.status == "PAID":
+                    # Perform wallet refund
+                    car_reservations = reservation.car_reservations.all()
+                    hotel_reservations = reservation.hotel_reservations.all()
+                    final_points_price = sum([cr.final_points_price for cr in car_reservations if cr.final_points_price]) + \
+                                        sum([hr.final_points_price for hr in hotel_reservations if hr.final_points_price])
+                    
+                    user.points += final_points_price
+                    user.save()
+                    reservation.status = "REFUNDED"
+                    reservation.save()
+                    send_reservation_notifications(reservation, created=False)
+                    return True, {"message": "Refunded successfully to your points"}
 
 
-        else: 
-            payment_method = reservation.payment_method
-            _status = "Failed"
-            return _status, {"message": f"Reservations with payment method {payment_method} should be refunded by the operation"}
-        
+                if refund_method == 'CREDIT_CARD' and reservation.payment_method == "CREDIT_CARD" and reservation.status == 'PAID':
+                    transaction = reservation.transactions.filter(success=True, is_refund=False).last()
+                    refund_transaction = Transaction.objects.create(
+                        user=user,
+                        amount=refund_amount + cancellation_fee,
+                        is_refund=True,
+                        reservation=reservation,
+                    )
+                    gateway = PayTabsGateway()
+                    _status, response = gateway.refund(
+                        amount=float(refund_amount), tran_id=transaction.id, tran_ref=transaction.tran_ref
+                    )
+                    if not _status:
+                        refund_transaction.pending = False
+                        return False, response
+                    reservation.status = "REFUNDED"
+                    transaction.refunded = True
+                    reservation.save()
+                    transaction.save()
+                    json_response = response.json()
+                    refund_tran_ref = json_response.get("tran_ref")
+                    refund_transaction.tran_ref = refund_tran_ref
+                    refund_transaction.success = True
+                    refund_transaction.pending = False
+                    refund_transaction.data = json_response
+                    refund_transaction.reservation = reservation
+                    refund_transaction.save()
+                    send_reservation_notifications(reservation, created=False)
+                    return _status, {"message": "refunded successfuly"}
+                
+                if reservation.payment_method == "CASH_ON_DELIVERY" or reservation.payment_method == "CAR_POS":
+                    if reservation.status == 'PAID':
+                        if refund_method == "WALLET":
+                            user.wallet += refund_amount
+                            user.save()
+                            reservation.status = "REFUNDED"
+                            reservation.save()
+                            send_reservation_notifications(reservation, created=False)
+                            raise serializers.ValidationError("Refunded successfully to wallet")
+                        else:
+                            raise serializers.ValidationError("Your reservation will be refunded by the operation service")
 
+                    if reservation.status != "PAID":
+                        reservation.status = "CANCELLED"
+                        reservation.save()
+                        send_reservation_notifications(reservation, created=False)
+                        raise serializers.ValidationError("Your reservation has been cancelled")
+
+
+                else: 
+                    payment_method = reservation.payment_method
+                    _status = "Failed"
+                    return _status, {"message": f"Reservations with payment method {payment_method} should be refunded by the operation"}
+                        
+        except Exception as e:
+            # Handle exceptions and rollback transaction if necessary
+            return False, {"message": str(e)}
 class PaymentResultSerializer(serializers.Serializer):
     response_status = serializers.CharField()
     response_code = serializers.CharField()
