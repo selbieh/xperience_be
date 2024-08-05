@@ -38,6 +38,7 @@ class SubscriptionOption(AbstractBaseModel):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     points = models.IntegerField(null=True, blank=True, default=0)
     points_price = models.IntegerField(null=True, blank=True, default=None)
+    dollar_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 
 class CarImage(models.Model):
@@ -48,7 +49,7 @@ class CarImage(models.Model):
 class HotelServiceFeature(AbstractBaseModel):
     name = models.CharField(max_length=100)
     description = models.TextField()
-
+    image = models.ImageField(upload_to='feat_icon/', blank=True, null=True)
 
 class HotelService(AbstractBaseModel):
     name = models.CharField(max_length=254)
@@ -67,6 +68,7 @@ class HotelService(AbstractBaseModel):
     image = models.ImageField(upload_to='hotel_image/', blank=True, null=True)
     points = models.IntegerField(null=True, blank=True, default=0)
     points_price = models.IntegerField(null=True, blank=True, default=None)
+    dollar_day_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 
 class HotelImage(models.Model):
@@ -85,4 +87,5 @@ class ServiceOption(AbstractBaseModel):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     active = models.BooleanField(default=True)
     points_price = models.IntegerField(null=True, blank=True, default=None)
+    dollar_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
