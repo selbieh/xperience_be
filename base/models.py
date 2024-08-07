@@ -15,6 +15,7 @@ class Policy(models.Model):
         ('privacy', 'Privacy Policy'),
         ('terms', 'Terms of Use'),
         ('cancellation', 'Cancellation Policy'),
+        ('about', 'About Us'),
     )
 
     key = models.CharField(max_length=20, choices=POLICY_TYPES, unique=True)
