@@ -11,7 +11,10 @@ from .models import Transaction, Reservation
 from django.utils import timezone
 from datetime import timedelta
 from reservations.signals import send_reservation_notifications
+import environ
 
+env = environ.Env()
+env.read_env()
 class PaySerializer(serializers.Serializer):
     reservation_id = serializers.IntegerField()
 
@@ -114,18 +117,25 @@ class RefundSerializer(serializers.Serializer):
         now = timezone.now()
 
         for hotel_res in hotel_reservations:
+            days=env("DAYS_BEFORE_HOTEL_REFUND")
             if hotel_res.check_in_date <= now.date() + timedelta(days=1):
-                raise serializers.ValidationError("Hotel reservations must be canceled at least a day before check-in")
+                raise serializers.ValidationError(f"Hotel reservations must be canceled at least {days} days before check-in time")
 
         for car_res in car_reservations:
+            hours=env("HOURS_BEFORE_CAR_REFUND")
             if car_res.pickup_time <= now + timedelta(hours=3):
-                raise serializers.ValidationError("Car reservations must be canceled at least 3 hours before pickup time")
+                raise serializers.ValidationError(f"Car reservations must be canceled at least {hours} hours before pickup time")
 
         if not commit:
             return True, {"refund_amount": refund_amount, "cancellation_fee": cancellation_fee or refund_fee}
 
         try:
-            with t.atomic():
+            with t.atomic(): 
+                if reservation.status == 'WAITING_FOR_PAYMENT':
+                    reservation.status = "CANCELLED"
+                    reservation.save()
+                    send_reservation_notifications(reservation, created=False)
+                    return True, {"message": f"Reservation has been cancelled"}
 
                 if refund_method == 'WALLET' and reservation.payment_method in ["CREDIT_CARD", "WALLET"] and reservation.status == "PAID":
                     # Perform wallet refund
@@ -198,7 +208,7 @@ class RefundSerializer(serializers.Serializer):
                             reservation.status = "REFUNDED"
                             reservation.save()
                             send_reservation_notifications(reservation, created=False)
-                            raise serializers.ValidationError("Refunded successfully to wallet")
+                            return True, {"message": f"Refunded successfully to wallet"}
                         else:
                             raise serializers.ValidationError("Your reservation will be refunded by the operation service")
 
@@ -206,13 +216,14 @@ class RefundSerializer(serializers.Serializer):
                         reservation.status = "CANCELLED"
                         reservation.save()
                         send_reservation_notifications(reservation, created=False)
-                        raise serializers.ValidationError("Your reservation has been cancelled")
+                        return True, {"message": f"Your reservation has been cancelled"}
 
-
+                if  reservation.status != 'PAID':
+                    return True, {"This Reservation can't be refund"}
+                
                 else: 
-                    payment_method = reservation.payment_method
                     _status = "Failed"
-                    return _status, {"message": f"Reservations with payment method {payment_method} should be refunded by the operation"}
+                    return _status, {"This Reservations Can't be refunded"}
                         
         except Exception as e:
             # Handle exceptions and rollback transaction if necessary
