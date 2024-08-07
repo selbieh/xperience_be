@@ -88,7 +88,7 @@ class HotelServiceFeatureSerializer(serializers.ModelSerializer):
 class HotelImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HotelImage
-        fields = ['id', 'image', 'hotel_service']
+        fields = ['id', 'image', 'hotel_service', 'belong_to_parent']
 
 class HotelServiceDetailSerializer(serializers.ModelSerializer):
     features = serializers.PrimaryKeyRelatedField(queryset=HotelServiceFeature.objects.all(), many=True)

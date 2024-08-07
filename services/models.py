@@ -74,6 +74,7 @@ class HotelService(AbstractBaseModel):
 class HotelImage(models.Model):
     image = models.FileField(upload_to='hotel_images/')
     hotel_service = models.ForeignKey(HotelService, on_delete=models.CASCADE, related_name='images')
+    belong_to_parent = models.BooleanField(default=False)
 
 
 class ServiceOption(AbstractBaseModel):
