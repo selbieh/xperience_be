@@ -41,34 +41,14 @@ class UserProfileViewSet(ModelViewSet):
         return Response({"message": "Your account has been deleted."}, status=status.HTTP_200_OK)
 
 
-# class CustomObtainAuthToken(APIView):
-#     permission_classes = [AllowAny]
-#     serializer_class = CallbackTokenAuthSerializer
-
-    # def post(self, request, *args, **kwargs):
-    #     serializer = self.serializer_class(data=request.data)
-    #     if serializer.is_valid(raise_exception=True):
-    #         user = serializer.validated_data['user']
-    #         refresh = RefreshToken.for_user(user)
-    #         user_data = UserProfileSerializer(user).data
-    #         return Response({
-    #             'refresh': str(refresh),
-    #             'access': str(refresh.access_token),
-    #             'user': user_data
-    #         }, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class CustomObtainAuthToken(APIView):
     permission_classes = [AllowAny]
-    serializer_class = CustomCallbackTokenAuthSerializer
+    serializer_class = CallbackTokenAuthSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-
         if serializer.is_valid(raise_exception=True):
-            mobile = serializer.validated_data['mobile']
-            user = User.objects.get(mobile=mobile)
+            user = serializer.validated_data['user']
             refresh = RefreshToken.for_user(user)
             user_data = UserProfileSerializer(user).data
             return Response({
@@ -77,3 +57,23 @@ class CustomObtainAuthToken(APIView):
                 'user': user_data
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class CustomObtainAuthToken(APIView):
+#     permission_classes = [AllowAny]
+#     serializer_class = CustomCallbackTokenAuthSerializer
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.serializer_class(data=request.data)
+
+#         if serializer.is_valid(raise_exception=True):
+#             mobile = serializer.validated_data['mobile']
+#             user = User.objects.get(mobile=mobile)
+#             refresh = RefreshToken.for_user(user)
+#             user_data = UserProfileSerializer(user).data
+#             return Response({
+#                 'refresh': str(refresh),
+#                 'access': str(refresh.access_token),
+#                 'user': user_data
+#             }, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
