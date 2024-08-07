@@ -231,6 +231,8 @@ class ReservationSerializer(serializers.ModelSerializer):
                     check_in_date = hotel_reservation.check_in_date
                     check_out_date = hotel_reservation.check_out_date
                     num_days = (check_out_date - check_in_date).days
+                    if num_days <= 0:
+                        raise serializers.ValidationError("The checkout date must be at least one day after the check-in date. Please provide a valid date range.")
                     total_price += num_days * hotel_reservation.hotel_service.day_price
                     if payment_method == 'POINTS' and not hotel_reservation.hotel_service.points_price:
                         raise serializers.ValidationError("This reservation cannot be completed with points.")
