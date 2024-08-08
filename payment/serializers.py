@@ -117,13 +117,13 @@ class RefundSerializer(serializers.Serializer):
         now = timezone.now()
 
         for hotel_res in hotel_reservations:
-            days=env("DAYS_BEFORE_HOTEL_REFUND")
-            if hotel_res.check_in_date <= now.date() + timedelta(days=1):
+            days=int(env("DAYS_BEFORE_HOTEL_REFUND"))
+            if hotel_res.check_in_date <= now.date() + timedelta(days=days):
                 raise serializers.ValidationError(f"Hotel reservations must be canceled at least {days} days before check-in time")
 
         for car_res in car_reservations:
-            hours=env("HOURS_BEFORE_CAR_REFUND")
-            if car_res.pickup_time <= now + timedelta(hours=3):
+            hours=int(env("HOURS_BEFORE_CAR_REFUND"))
+            if car_res.pickup_time <= now + timedelta(hours=hours):
                 raise serializers.ValidationError(f"Car reservations must be canceled at least {hours} hours before pickup time")
 
         if not commit:

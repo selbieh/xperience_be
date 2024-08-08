@@ -5,6 +5,11 @@ from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 from base.models import UserNotification, AdminNotification
 import logging
+import environ
+from twilio.rest import Client
+
+env = environ.Env()
+env.read_env()
 
 logger = logging.getLogger(__name__)
 
@@ -104,5 +109,20 @@ def send_reservation_notifications(reservation, created):
         body=body1,
         reservation=reservation
     )
+
+    SEND_SMS_NOTIFICATION=env("SEND_SMS_NOTIFICATION")
+
+    if SEND_SMS_NOTIFICATION == 'True':
+        ACCOUNT_SID = env('TWILIO_ACCOUNT_SID')
+        AUTH_TOKEN = env('TWILIO_AUTH_TOKEN')
+        PHONE_NUMBER = env('TWILIO_PHONE_NUMBER')
+        user_number = reservation.user.mobile
+
+        client = Client(ACCOUNT_SID, AUTH_TOKEN)
+        client.messages.create(
+            from_= PHONE_NUMBER,
+            to=user_number.as_e164,
+            body=body
+        )
 
     logger.critical(f"Notifications sent successfully for reservation {reservation.id}")
