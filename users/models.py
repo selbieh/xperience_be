@@ -11,7 +11,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
     wallet = models.IntegerField(default=0)
     name = models.CharField(max_length=245, blank=True, null=True)
-    points = models.IntegerField(null=True, blank=True, default=0)
+    points = models.IntegerField(blank=True, default=0)
 
     groups = models.ManyToManyField(
         Group,

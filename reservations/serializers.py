@@ -43,7 +43,16 @@ class CarReservationSerializer(serializers.ModelSerializer):
         write_only=True, 
         source='car_service'
     )
+    subscription_option = serializers.IntegerField()
 
+    def validate_subscription_option(self, value):
+        car_service_id = self.data.get('car_service_id')
+        if car_service_id is None:
+            raise serializers.ValidationError("You Should Choose a duration option.")
+        if not SubscriptionOption.objects.filter(car_service=car_service_id).exists():
+            raise serializers.ValidationError("Duration option is not associated with the choosen car service.") 
+        return value
+    
     def get_car_service(self, obj):
         return CarServiceMinimalSerializer(obj.car_service).data
 
