@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Permission, Group
 from phonenumber_field.modelfields import PhoneNumberField
 from .managers import CustomUserManager
+from django.utils.translation import gettext_lazy as _
+
+class LanguageChoices(models.TextChoices):
+    ARABIC = 'ar', _('Arabic')
+    ENGLISH = 'en', _('English')
 
 
 class User(AbstractUser):
@@ -12,6 +17,11 @@ class User(AbstractUser):
     wallet = models.IntegerField(default=0)
     name = models.CharField(max_length=245, blank=True, null=True)
     points = models.IntegerField(blank=True, default=0)
+    language = models.CharField(
+        max_length=2,
+        choices=LanguageChoices.choices,
+        default=LanguageChoices.ENGLISH,
+    )
 
     groups = models.ManyToManyField(
         Group,
