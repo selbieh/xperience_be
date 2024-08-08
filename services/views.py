@@ -98,10 +98,14 @@ class SubscriptionOptionViewSet(viewsets.ModelViewSet):
 
 
 class ServiceOptionViewSet(viewsets.ModelViewSet):
-    queryset = ServiceOption.objects.all()
     serializer_class = ServiceOptionSerializer
     filterset_fields = ['service_type', 'type']
 
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return ServiceOption.objects.all()
+        return ServiceOption.objects.filter(active=True)
+    
     def get_permissions(self):
         if self.request.method in ['GET']:
             permission_classes = [AllowAny]
