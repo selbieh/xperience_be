@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'drf_spectacular_sidecar',
     'modeltranslation',
     "fcm_django",
+    'ckeditor',
     "base",
     "users",
     "services",

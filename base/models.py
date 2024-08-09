@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import User
+from ckeditor.fields import RichTextField
 
 class AbstractBaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -19,7 +20,7 @@ class Policy(models.Model):
     )
 
     key = models.CharField(max_length=20, choices=POLICY_TYPES, unique=True)
-    content = models.TextField()
+    content = RichTextField()
 
     def __str__(self):
         return self.get_key_display()
