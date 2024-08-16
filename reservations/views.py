@@ -15,6 +15,11 @@ from rest_framework.views import APIView
 from django.utils import timezone
 from services.models import ServiceOption
 
+import openpyxl
+from django.http import HttpResponse
+from openpyxl import Workbook
+from django.views import View
+
 class ReservationFilter(filters.FilterSet):
     has_car_reservations = filters.BooleanFilter(method='filter_car_reservations')
     has_hotel_reservations = filters.BooleanFilter(method='filter_hotel_reservations')
@@ -281,3 +286,65 @@ class CalculateReservationView(APIView):
         }
 
         return response_data
+
+class ReportView(APIView):
+    def get(self, request, *args, **kwargs):
+        # Fetch the data you want to include in the report
+        queryset = Reservation.objects.select_related(
+            'user',
+            'promocode'
+        ).prefetch_related(
+            'hotel_reservations__hotel_service',
+            'car_reservations__car_service__make',
+            'car_reservations__car_service__model',
+            'car_reservations__car_service__subscription_option'
+        ).values(
+            'status', 'payment_method', 'user__name', 
+            'hotel_reservations__hotel_service__name',
+            'car_reservations__car_service__make__name',
+            'car_reservations__car_service__model__name',
+            'hotel_reservations__hotel_service__points_price',
+            'car_reservations__final_price',
+            'hotel_reservations__final_price',
+            'promocode__discount_type',
+            'promocode__discount_value',
+            'car_reservations__car_service__subscription_options__type',
+            'car_reservations__car_service__subscription_options__duration_hours',
+            'car_reservations__car_service__subscription_options__points_price',
+        )
+
+        # Create an Excel workbook and worksheet
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Report"
+
+        # Write header row
+        headers = ['User name', 'Status', 'Payment Method', 'Hotel Service name', 'Car Make', 'Car Model', 'Car reservation type',  'Car duration hours', 'Car points price', 'Hotel points price', 'Car final price', 'Hotel final price', 'Discount type', 'Discount value']
+        ws.append(headers)
+
+        # Write data rows
+        for obj in queryset:
+            row = [
+                obj['user__name'],
+                obj['status'],
+                obj['payment_method'],
+                obj['hotel_reservations__hotel_service__name'],
+                obj['car_reservations__car_service__make__name'],
+                obj['car_reservations__car_service__model__name'],
+                obj['car_reservations__car_service__subscription_options__type'],
+                obj['car_reservations__car_service__subscription_options__duration_hours'],
+                obj['car_reservations__car_service__subscription_options__points_price'],
+                obj['hotel_reservations__hotel_service__points_price'],
+                obj['car_reservations__final_price'],
+                obj['hotel_reservations__final_price'],
+                obj['promocode__discount_type'],
+                obj['promocode__discount_value'],
+            ]
+            ws.append(row)
+
+        # Save the Excel file to an in-memory stream
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=report.xlsx'
+        wb.save(response)
+
+        return response
