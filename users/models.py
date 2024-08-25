@@ -11,7 +11,7 @@ class LanguageChoices(models.TextChoices):
 
 class User(AbstractUser):
     username = None
-    mobile = PhoneNumberField(region='EG', blank=False, null=False, unique=True)
+    mobile = PhoneNumberField(blank=False, null=False, unique=True)
     USERNAME_FIELD = "mobile"
     REQUIRED_FIELDS = []
     wallet = models.IntegerField(default=0)
