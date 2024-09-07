@@ -11,6 +11,7 @@ from drfpasswordless.serializers import CallbackTokenAuthSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from drfpasswordless.views import ObtainMobileCallbackToken
 
 
 class UserProfileViewSet(ModelViewSet):
@@ -87,3 +88,16 @@ class CustomObtainAuthToken(APIView):
 #                 'user': user_data
 #             }, status=status.HTTP_200_OK)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomObtainMobileCallbackToken(ObtainMobileCallbackToken):
+    def post(self, request, *args, **kwargs):
+        mobile = request.data.get('mobile', None)
+
+        # Check if the mobile number matches the one you want to bypass
+        if mobile == "+19796373898":
+            # If it matches, return the success response directly without sending an OTP
+            return Response({"detail": "We texted you a verification code."}, status=200)
+
+        # If the number doesn't match, proceed with the original behavior
+        return super().post(request, *args, **kwargs)
