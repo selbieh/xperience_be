@@ -44,7 +44,7 @@ class HotelServiceFilter(django_filters.FilterSet):
 
 class HotelServiceViewSet(viewsets.ModelViewSet):
     filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ['name', 'address']
+    search_fields = ['name', 'address','description']
     filterset_class = HotelServiceFilter
 
     def get_queryset(self):
